@@ -16,6 +16,10 @@ Phrase._getNextLetter = function() {
     }
 };
 
+Phrase.getCurrentIndex = function() {
+    return this._currentIndex;
+};
+
 Phrase.getCurrentPhrase = function() {
     let letter = this._getNextLetter();
     if(letter) {

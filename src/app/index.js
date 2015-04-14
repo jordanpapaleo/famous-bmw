@@ -29,13 +29,13 @@ class App extends DomView {
         /*for(var  i =0 ; i < 36; i++) {
             var image = new Image();
             image.src = 'images/car/' + i + '.jpeg';
-
-            image.onload = rawCallback;
         }*/
     }
 
     renderViews() {
         this.currentImage = 0;
+        this.timelineInitialized = false;
+
         this.baseZPos = {
             top: 99,
             bottom: 110,
@@ -198,27 +198,50 @@ class App extends DomView {
             // Flip bottomCard to top
             bottomCard.view.rotation.setX((180 * Math.PI) / 180, {
                 duration: duration
-            });//TODO: Callback bug
-
-            // Put in callback
-            setTimeout(function() {
+            }, function() {
                 nextCard.view.advance(_this.baseZPos.bottom);
-
                 topCard.view.advance(_this.baseZPos.next, true);
-
                 bottomCard.view.advance(_this.baseZPos.top);
-
                 topCard.car.updateImage(_this.currentImage);
-                topCard.title.update(Phrase.getCurrentPhrase());
+
+                // 12 is the last iteration for the
+                if(Phrase.getCurrentIndex() <  Phrase._letters.length) {
+                    topCard.title.update(Phrase.getCurrentPhrase());
+                } else {
+                    topCard.title.opacity.set(0);
+                    if(!_this.timelineInitialized) {
+                        _this.initTimeline();
+                    }
+                }
 
                 if(duration > 100) {
-                    duration = duration * .9;
+                    duration = duration * .85;
                 }
 
                 if(_this.currentImage < 35) {
                     setTimeout(flipIt(), duration);
                 }
-            }, duration);
+            });//TODO: Callback bug
+
+            // Put in callback
+            /*setTimeout(function() {
+                nextCard.view.advance(_this.baseZPos.bottom);
+                topCard.view.advance(_this.baseZPos.next, true);
+                bottomCard.view.advance(_this.baseZPos.top);
+                topCard.car.updateImage(_this.currentImage);
+
+                if(Phrase.getCurrentIndex() <  12) {
+                    topCard.title.update(Phrase.getCurrentPhrase());
+                } else {
+                    topCard.title.opacity.set(0);
+                     if(!_this.timelineInitialized) {
+                        _this.initTimeline();
+                     }
+                }
+
+                if(duration > 100) { duration = duration * .85; }
+                if(_this.currentImage < 35) { setTimeout(flipIt(), duration); }
+            }, duration);*/
 
             //Shadow
             /*_this.shadow.size.setAbsolute(422, 0, 1, {
@@ -240,6 +263,12 @@ class App extends DomView {
                 _this.shadow.opacity.set(0);
             }, duration);*/
         }
+    }
+
+    initTimeline() {
+        this.timelineInitialized = true;
+        this.timeline = new Timeline({ timescale: 1 });
+
     }
 }
 

@@ -10,6 +10,10 @@ export class FlipCard extends DomView {
         this.size.setProportional(1,.5, 1);
     }
 
+    render() {
+        this.el.property('border-bottom', '1px solid gray');
+    }
+
     advance(n, reset) {
         if(reset) {
             this.rotation.setX(0);
