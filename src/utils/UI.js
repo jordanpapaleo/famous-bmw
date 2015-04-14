@@ -30,7 +30,7 @@ UI.setStyle = function(view, properties) {
     }
 };
 
-UI._prefixedRules = ['border-radius', 'backface-visibility'];
+UI._prefixedRules = ['border-radius', 'backface-visibility', 'box-shadow'];
 UI._browserPrefixes = ['-webkit-', '-moz-', '-ms-', '-o-'];
 UI._crossBrowserStyle = function(el, prop, value) {
     this._browserPrefixes.forEach(function(prefix) {

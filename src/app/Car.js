@@ -1,27 +1,22 @@
 import {DomView} from '../shared/DomView';
 import {Timeline} from '../shared/Timeline';
+import UI from '../utils/UI';
 
 export class Car extends DomView {
-    constructor(options) {
-        super(options);
-
-        this.model.carImageCount = 35;
-        this.initTimeline();
-    }
-
     setProperties() {
-
+        this.size.setProportional(1, 1, 1);
     }
 
     render() {
-        this.el.attribute('src', 'assets/images/car/-1.jpeg')
+        this.el.attribute('src', 'assets/images/car/' + this.model.currentImage + '.jpeg');
+
+        UI.setStyle(this, {
+            'backface-visibility': 'hidden',
+            //'box-shadow': '0px 0px 28px 8px rgba(0,0,0,0.75)'
+        });
     }
 
-    initTimeline() {
-        this.timeline = new Timeline({ timescale: 1 });
-        this.time = {
-            start: 0,
-            end: 18000
-        }
+    updateImage(currentImage) {
+        this.el.attribute('src', 'assets/images/car/' + currentImage + '.jpeg');
     }
 }

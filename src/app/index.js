@@ -5,6 +5,8 @@ import {Timeline} from '../shared/Timeline';
 import {Car} from './Car';
 import {Logo} from './Logo';
 import {Title} from './Title';
+import {FlipCard} from './FlipCard';
+import Phrase from './PhraseService';
 
 class App extends DomView {
     constructor(options) {
@@ -23,177 +25,220 @@ class App extends DomView {
         this.el.property('border', "1px solid #000000");
     }
 
+    preloadImages() {
+        /*for(var  i =0 ; i < 36; i++) {
+            var image = new Image();
+            image.src = 'images/car/' + i + '.jpeg';
+
+            image.onload = rawCallback;
+        }*/
+    }
+
     renderViews() {
         this.currentImage = 0;
-        this.renderViewA();
-        this.renderViewB();
-        //this.initFlipBook();
+        this.baseZPos = {
+            top: 99,
+            bottom: 110,
+            next: 99,
+            shadow: 100
+        };
+
+        this.renderFlipCardA();
+        this.renderFlipCardB();
+        this.renderFlipCardC();
+        //this.renderShadow();
     }
 
-    renderViewA() {
-        this.viewA = new View({
+    renderFlipCardA() {
+        this.flipCardA = new FlipCard({
             node: this.node.addChild(),
-            model: {}
+            model: {
+                order: 1,
+                zPos: this.baseZPos.top
+            }
         });
-        this.viewA.origin.set(0, 0);
-        this.viewA.position.setZ(100);
 
-        let node = this.viewA.node;
+        this.flipCardA.el.addClass('card-a');
 
-        this.carA =  new DomView({
-            node: node.addChild(),
+        this.flipCardA.rotation.set((180 * Math.PI) / 180);
+
+        this.carA =  new Car({
+            node: this.flipCardA.node.addChild(),
             tagName: 'img',
-            model: {}
+            model: {
+                currentImage: this.currentImage
+            }
         });
 
-        this.carA.el.attribute('src', 'assets/images/car/' + this.currentImage + '.jpeg');
-
-        /*this.titleA = new Title({
-            node,
-            model: {}
-         });*/
-
-        /*this.logoA = new Logo({
-            node,
-            model: {}
-        });*/
+        this.titleA = new Title({
+            tagName: 'h1',
+            node: this.flipCardA.node.addChild(),
+            model: {
+                text: Phrase.getCurrentPhrase()
+            }
+         });
     }
 
-    renderViewB() {
-        this.viewB = new View({
+    renderFlipCardB() {
+        this.flipCardB = new FlipCard({
             node: this.node.addChild(),
-            model: {}
+            model: {
+                order: 2,
+                zPos: this.baseZPos.bottom
+            }
         });
-        this.viewB.origin.set(0, 0);
-        let viewAPosZ = this.viewA.position.getZ();
-        this.viewB.position.setZ(viewAPosZ - 1);
 
-        let node = this.viewB.node;
+        this.flipCardB.el.addClass('card-b');
 
-        this.currentImage++;
 
         this.carB =  new Car({
-            node: node.addChild(),
+            node: this.flipCardB.node.addChild(),
             tagName: 'img',
+            model: {
+                currentImage: this.currentImage
+            }
+        });
+
+        this.titleB = new Title({
+            tagName: 'h1',
+            node: this.flipCardB.node.addChild(),
+            model: {
+                text: Phrase.getCurrentPhrase()
+            }
+        });
+    }
+
+    renderFlipCardC() {
+        this.currentImage++;
+
+        this.flipCardC = new FlipCard({
+            node: this.node.addChild(),
+            model: {
+                order: 3,
+                zPos: this.baseZPos.next
+            }
+        });
+
+        this.flipCardC.el.addClass('card-c');
+
+        this.carC =  new Car({
+            node: this.flipCardC.node.addChild(),
+            tagName: 'img',
+            model: {
+                currentImage: this.currentImage
+            }
+        });
+
+        this.titleC = new Title({
+            tagName: 'h1',
+            node: this.flipCardC.node.addChild(),
+            model: {
+                text: Phrase.getCurrentPhrase()
+            }
+        });
+    }
+
+    renderShadow() {
+        this.shadow = new DomView({
+            node: this.node.addChild(),
             model: {}
         });
 
-        this.carB.el.attribute('src', 'assets/images/car/' + this.currentImage + '.jpeg');
+        this.shadow.position.setZ(this.baseZPos.shadow);
+        this.shadow.size.setAbsolute(422, 385);
+        this.shadow.align.set(0, 0);
+        this.shadow.position.setY(385);
+        this.shadow.opacity.set(0);
 
-        /*this.titleB = new Title({
-            node,
-            model: {}
-        });*/
-
-        /*this.logoB = new Logo({
-            node,
-            model: {}
-        });*/
+        this.shadow.el.property('background-color', '#000000');
+        this.shadow.el.property('backface-visibility', 'visible');
     }
 
     initFlipBook() {
-        window.setVariableInterval = function(callbackFunc, timing) {
-            let variableInterval = {
-                interval: timing,
-                callback: callbackFunc,
-                stopped: false,
-                runLoop: function() {
-                    if (variableInterval.stopped) return;
-                    var result = variableInterval.callback.call(variableInterval);
-                    if (typeof result == 'number')
-                    {
-                        if (result === 0) return;
-                        variableInterval.interval = result;
-                    }
-                    variableInterval.loop();
-                },
-                stop: function() {
-                    this.stopped = true;
-                    window.clearTimeout(this.timeout);
-                },
-                start: function() {
-                    this.stopped = false;
-                    return this.loop();
-                },
-                loop: function() {
-                    this.timeout = window.setTimeout(this.runLoop, this.interval);
-                    return this;
-                }
-            };
-
-            return variableInterval.start();
-        };
-
         const _this = this;
-        let duration = 1000;
+        let duration = 750;
 
-
-        function setDeceleratingTimeout(callback, factor, times) {
-            var internalCallback = function(t, counter) {
-                console.log('t',t);
-                console.log('counter',counter);
-
-                return function() {
-                    if(--t > 0) {
-                        setTimeout(internalCallback, ++counter * factor );
-                        callback();
-                    }
-                }
-            }(times, 0);
-
-            setTimeout(internalCallback, factor);
-        }
-
-        //setDeceleratingTimeout( function(){ console.log( 'hi' );}, 10, 10 );
-        //setDeceleratingTimeout( function(){ console.log( 'bye' );}, 1000, 10 );
-
-        flipIt();
+        setTimeout(flipIt, duration);
 
         function flipIt() {
+            //_this.shadow.opacity.set(.33);
 
+            _this.currentImage++;
+            // Determine what cards are where
+            let topCard = {}, bottomCard = {}, nextCard = {};
+
+            let cards = [{
+                view: _this.flipCardA,
+                order: _this.flipCardA.getOrder(),
+                car: _this.carA,
+                title: _this.titleA
+            }, {
+                view: _this.flipCardB,
+                order: _this.flipCardB.getOrder(),
+                car: _this.carB,
+                title: _this.titleB
+            }, {
+                view: _this.flipCardC,
+                order: _this.flipCardC.getOrder(),
+                car: _this.carC,
+                title: _this.titleC
+            }];
+
+            cards.forEach(function(card) {
+                //The top card has 180 degree rotation
+                if(card.order === 1) {
+                    topCard = card;
+                } else if(card.order === 2) {
+                    bottomCard = card;
+                } else if(card.order === 3) {
+                    nextCard = card;
+                }
+            });
+
+            // Flip bottomCard to top
+            bottomCard.view.rotation.setX((180 * Math.PI) / 180, {
+                duration: duration
+            });//TODO: Callback bug
+
+            // Put in callback
             setTimeout(function() {
-                let viewA = {
-                    view: _this.viewA,
-                    posZ: _this.viewA.position.getZ(),
-                    car: _this.carA
-                };
+                nextCard.view.advance(_this.baseZPos.bottom);
 
-                let viewB = {
-                    view: _this.viewB,
-                    posZ: _this.viewB.position.getZ(),
-                    car: _this.carB
-                };
+                topCard.view.advance(_this.baseZPos.next, true);
 
-                let frontView, backView;
+                bottomCard.view.advance(_this.baseZPos.top);
 
-                if(viewA.posZ > viewB.posZ) {
-                    frontView = viewA;
-                    backView  = viewB;
-                } else {
-                    frontView = viewB;
-                    backView  = viewA;
+                topCard.car.updateImage(_this.currentImage);
+                topCard.title.update(Phrase.getCurrentPhrase());
+
+                if(duration > 100) {
+                    duration = duration * .9;
                 }
 
-                frontView.view.rotation.setX((90 * Math.PI) / 180, {
-                    curve: 'easeOut',
-                    duration: duration / 2
+                if(_this.currentImage < 35) {
+                    setTimeout(flipIt(), duration);
+                }
+            }, duration);
+
+            //Shadow
+            /*_this.shadow.size.setAbsolute(422, 0, 1, {
+                duration: duration / 1.5
+            }); //TODO: Callback needs to go here
+
+            //TODO This needs to go in the callback
+            setTimeout(function() {
+                _this.shadow.position.setY(0, {
+                    duration: duration / 2.5
                 });
 
-                setTimeout(function() {
-                    _this.currentImage++;
-                    frontView.view.position.setZ(frontView.view.position.getZ() - 1);
-                    backView.view.position.setZ(backView.view.position.getZ() + 1);
-                    frontView.view.rotation.setX(0);
-                    frontView.car.el.attribute('src', 'assets/images/car/' + _this.currentImage + '.jpeg');
-                }, duration / 2);
-            }, duration);
+                _this.shadow.size.setAbsolute(422, 385, 1, {
+                    duration: duration / 2.5
+                });
+            }, duration / 2);
 
             setTimeout(function() {
-                if(_this.currentImage <= 35) {
-                    duration = duration * .75;
-                    flipIt();
-                }
-            }, duration);
+                _this.shadow.opacity.set(0);
+            }, duration);*/
         }
     }
 }

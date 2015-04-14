@@ -1,26 +1,32 @@
-import {View} from '../shared/View';
+import {DomView} from '../shared/DomView';
 import {Timeline} from '../shared/Timeline';
+import UI from '../utils/UI';
 
-export class Title extends View {
-    constructor(options) {
-        super(options);
-
-        this.model.title = "Hello Future";
-        this.model.letters = this.model.title.split('');
-        console.info('this.model.letters', this.model.letters);
-
-        this.initTimeline();
+export class Title extends DomView {
+    setProperties() {
+        this.mountPoint.set(.5, .5);
+        this.align.set(.5, .5);
+        this.size.setAbsolute(420, 200, 1);
+        this.origin.set(.5, .5);
+        this.rotation.setX((180 * Math.PI) / 180);
     }
 
-    renderLetterViews() {
+    render() {
+        this.el.content(this.model.text);
 
+        UI.setStyle(this, {
+            'text-align': 'center',
+            'backface-visibility': 'hidden',
+            'background-color': '#FFFFFF',
+            'font-size': '70px',
+            'font-weight': '300',
+            'margin': '0',
+            'box-sizing': 'border-box',
+            'text-transform': 'uppercase'
+        });
     }
 
-    initTimeline() {
-        this.timeline = new Timeline({ timescale: 1 });
-        this.time = {
-            start: 0,
-            end: 8000
-        }
+    update(titleString) {
+        this.el.content(titleString);
     }
 }
