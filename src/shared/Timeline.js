@@ -2,9 +2,10 @@ import {core, domRenderables, components, transitions} from 'famous';
 
 const Famous          = core.Famous;
 const Size            = components.Size;
-const Easing          = transitions.Easing;
 const Transitionable  = transitions.Transitionable;
-var easingCurveLinear = Easing.getCurve('linear');
+const Curves          = transitions.Curves;
+
+const easingCurveLinear = Curves.linear;
 
 export class Timeline {
     constructor(options) {
