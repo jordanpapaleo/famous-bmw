@@ -1,4 +1,4 @@
-import {core, domRenderables, components} from 'famous';
+import {core, domRenderables, components, transitions} from 'famous';
 import {View} from '../shared/View';
 import {DomView} from '../shared/DomView';
 import {Timeline} from '../shared/Timeline';
@@ -52,6 +52,7 @@ class App extends DomView {
         this.renderFlipCardA();
         this.renderFlipCardB();
         this.renderFlipCardC();
+        this.renderLogo();
         //this.renderShadow();
     }
 
@@ -142,6 +143,44 @@ class App extends DomView {
                 text: Phrase.getCurrentPhrase()
             }
         });
+    }
+
+    renderLogo() {
+        this.logo = new DomView({
+            node: this.node.addChild(),
+            model: {}
+        });
+
+        this.logo.size.setAbsolute(250, 250);
+        this.logo.position.setZ(200);
+        this.logo.align.set(.5, 0);
+        this.logo.mountPoint.set(.5, 0);
+        this.logo.position.setY(75);
+        this.logo.opacity.set(0);
+
+        this.logoCircles = this.renderLogoImages([4, 5, 6, 7]);
+        this.logoLetters = this.renderLogoImages([8, 9, 10]);
+        this.logoQuadrants = this.renderLogoImages([0, 1, 2, 3]);
+    }
+
+    renderLogoImages(imageNumbers) {
+        const _this = this;
+        let imageViews = [];
+
+        imageNumbers.forEach(function(imageNumber) {
+            let image = new DomView({
+                tagName: 'img',
+                node: _this.logo.node.addChild(),
+                model: {
+                    imageNumber
+                }
+            });
+
+            image.el.attribute('src', 'assets/images/logo/' + imageNumber + '.png');
+            imageViews.push(image);
+        });
+
+        return imageViews;
     }
 
     renderShadow() {
@@ -275,12 +314,210 @@ class App extends DomView {
         this.timelineInitialized = true;
         this.timeline = new Timeline({ timescale: 1 });
 
+        this.time = {};
+        this.time.start = 0;
+        this.time.quad = {
+            duration: 300,
+            a: 250,
+            b: 400,
+            c: 550,
+            d: 700
+        };
+
+        this.time.circles = {
+            a: [700, 1000, 1200],
+            b: [1100, 1400, 1700],
+            c: [1100, 1400, 1700],
+            d: [1400, 1800]
+        };
+
+        this.time.letters = {
+            a: [1800, 2200],
+            b: [2100, 2500],
+            c: [2400, 2800]
+        };
+
+        this.time.end   = 2800;  // Finis
+
+        this.registerLogoQuadrants();
+        this.registerLogoCircles();
+        this.registerLogoLetters();
+
+        this.logo.opacity.set(1);
+
+        this.timeline.set(this.time.end, { duration: this.time.end });
+    }
+
+    registerLogoQuadrants() {
+        const _this = this;
+
+        this.logoQuadrants.forEach(function(quadrant, i) {
+            let x, y, startTime;
+            const offset = 400;
+
+            switch(quadrant.model.imageNumber) {
+                case 0:  // top left
+                    startTime = _this.time.quad.a;
+                    x = -offset;
+                    y = -offset;
+                    break;
+                case 1: // bottom right
+                    startTime = _this.time.quad.b;
+                    x = offset;
+                    y = offset;
+                    break;
+                case 2: // top right
+                    startTime = _this.time.quad.c;
+                    x = offset;
+                    y = -offset;
+                    break;
+                case 3: // bottom left
+                    startTime = _this.time.quad.d;
+                    x = -offset;
+                    y = offset;
+                    break;
+                default:
+                    x = 0;
+                    y = 0;
+                    break;
+            }
+
+            let endTime = startTime + _this.time.quad.duration;
+
+            _this.timeline.registerComponent({
+                component: quadrant.position,
+                path: [
+                    [0, [x, y]],
+                    [startTime, [x, y]],
+                    [endTime, [0, 0], Curves.outQuad]
+                ]
+            });
+        });
+    }
+
+    registerLogoCircles() {
+        const _this = this;
+
+        this.logoCircles.forEach(function(circle) {
+            let scale, opacity;
+
+            circle.origin.set(.5, .5);
+
+            switch(circle.model.imageNumber) {
+                case 4: // Large black ring
+                    scale = [
+                        [_this.time.start, [.25, .25]],
+                        [_this.time.circles.a[0], [.25, .25]],
+                        [_this.time.circles.a[1], [1.1, 1.1]],
+                        [_this.time.circles.a[2], [1, 1]]
+                    ];
+                    opacity = [
+                        [_this.time.start, 0],
+                        [_this.time.circles.a[0], 0],
+                        [_this.time.circles.a[2], 1]
+                    ];
+                    break;
+                case 5: // black outline
+                    scale = [
+                        [_this.time.start, [1.25, 1.25]],
+                        [_this.time.circles.b[0], [1.25, 1.25]],
+                        [_this.time.circles.b[1], [.8, .8]],
+                        [_this.time.circles.b[2], [1, 1]]
+                    ];
+                    opacity = [
+                        [_this.time.start, 0],
+                        [_this.time.circles.b[0] - 50, 0],
+                        [_this.time.circles.b[0], .5],
+                        [_this.time.circles.b[2], 1]
+                    ];
+                    break;
+                case 6: // gradient outline
+                    scale = [
+                        [_this.time.start, [.25, .25]],
+                        [_this.time.circles.c[0], [.25, .25]],
+                        [_this.time.circles.c[1], [1.2, 1.2]],
+                        [_this.time.circles.c[2], [1, 1]]
+                    ];
+                    opacity = [
+                        [_this.time.start, 0],
+                        [_this.time.circles.c[0] - 50, 0],
+                        [_this.time.circles.c[0], .5],
+                        [_this.time.circles.c[2], 1]
+                    ];
+                    break;
+                case 7: //Grey center circle
+                    scale = [
+                        [_this.time.start, [.5, .5]],
+                        [_this.time.circles.d[0], [.5, .5]],
+                        [_this.time.circles.d[1], [1, 1]]
+                    ];
+                    opacity = [
+                        [_this.time.start, 0],
+                        [_this.time.circles.d[0], 0],
+                        [_this.time.circles.d[1], 1]
+                    ];
+                    break;
+                default:
+                    scale = [];
+                    opacity = [];
+                    break;
+            }
+
+            _this.timeline.registerComponent({
+                component: circle.scale,
+                path: scale
+            });
+
+            _this.timeline.registerComponent({
+                component: circle.opacity,
+                path: opacity
+            });
+        });
+    }
+
+    registerLogoLetters() {
+        const _this = this;
+        this.logoLetters.forEach(function(letter) {
+            let opacity;
+
+            switch (letter.model.imageNumber) {
+                case 8: // Large black ring
+                    opacity = [
+                        [_this.time.start, 0],
+                        [_this.time.letters.a[0], 0],
+                        [_this.time.letters.a[1], 1]
+                    ];
+                    break;
+                case 9: // black outline
+                    opacity = [
+                        [_this.time.start, 0],
+                        [_this.time.letters.b[0], 0],
+                        [_this.time.letters.b[1], 1]
+                    ];
+                    break;
+                case 10: // gradient outline
+                    opacity = [
+                        [_this.time.start, 0],
+                        [_this.time.letters.c[0], 0],
+                        [_this.time.letters.c[1], 1]
+                    ];
+                    break;
+                default:
+                    opacity = [];
+                    break;
+            }
+
+            _this.timeline.registerComponent({
+                component: letter.opacity,
+                path: opacity
+            });
+        });
     }
 }
 
-const root = new core.Context('body');
+const root = core.Famous.createContext('body');
 
-new App({
+window.bmw = new App({
     node: root.addChild(),
     model: {}
 });
