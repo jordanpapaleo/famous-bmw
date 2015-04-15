@@ -4,12 +4,12 @@ import UI from '../utils/UI';
 
 export class Car extends DomView {
     setProperties() {
-        this.size.setProportional(1, 1, 1);
+        this.size.setAbsolute(420, 280);
     }
 
     render() {
         if(this.model.currentImage >= 0) {
-            this.el.attribute('src', 'assets/images/car/' + this.model.currentImage + '.jpeg');
+            this.el.attribute('src', 'assets/images/car/' + this.model.currentImage + '.jpg');
         }
 
         UI.setStyle(this, {
@@ -18,6 +18,6 @@ export class Car extends DomView {
     }
 
     updateImage(currentImage) {
-        this.el.attribute('src', 'assets/images/car/' + currentImage + '.jpeg');
+        this.el.attribute('src', 'assets/images/car/' + currentImage + '.jpg');
     }
 }

@@ -17,7 +17,7 @@ body {
     box-sizing: border-box;
 }
 
-.backfaceVisibility {
+.backface-visibile {
     -webkit-backface-visibility: visible;
     backface-visibility: visible;
 }
@@ -32,7 +32,6 @@ h1 {
 .bottom-image {
     background-size: cover;
     background-position: 50% 50%;
-
 }
 
 div.bold {

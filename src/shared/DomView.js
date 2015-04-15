@@ -8,9 +8,11 @@ export class DomView extends View {
         super(options);
 
         options.tagName = (options.hasOwnProperty('tagName')) ? options.tagName : "div";
+
         this.el = new domRenderables.HTMLElement(this.dispatch, {
             tagName: options.tagName
         });
+
         this.render();
     }
 

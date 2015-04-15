@@ -7,7 +7,6 @@ export class FlipCard extends DomView {
         this.origin.set(0, 0);
         this.align.set(0, .5);
 
-        console.log('zPos',this.model.zPos);
         this.position.setZ(this.model.zPos);
         this.size.setProportional(1,.5, 1);
     }
