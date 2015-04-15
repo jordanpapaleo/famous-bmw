@@ -7,6 +7,9 @@ import {Logo} from './Logo';
 import {Title} from './Title';
 import {FlipCard} from './FlipCard';
 import Phrase from './PhraseService';
+import UI from '../utils/UI';
+
+const Curves  = transitions.Curves;
 
 class App extends DomView {
     constructor(options) {
@@ -22,7 +25,10 @@ class App extends DomView {
     }
 
     render() {
-        this.el.property('border', "1px solid #000000");
+        UI.setStyle(this, {
+            'border': "1px solid #000000",
+            'overflow': 'hidden'
+        });
     }
 
     preloadImages() {
