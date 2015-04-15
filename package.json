@@ -28,6 +28,6 @@
   "author": "Jordan Papaleo",
   "dependencies": {
     "brfs": "^1.1.1",
-    "famous": "git+ssh://git@github.famo.us/platform/oasis#v0.1.0"
+    "famous": "git+ssh://git@github.famo.us/platform/oasis#v0.2.0"
   }
 }
