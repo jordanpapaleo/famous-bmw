@@ -44,105 +44,68 @@ class App extends DomView {
 
         this.baseZPos = {
             top: 99,
-            bottom: 110,
+            bottom: 101,
             next: 99,
             shadow: 100
         };
 
-        this.renderFlipCardA();
-        this.renderFlipCardB();
-        this.renderFlipCardC();
-        this.renderLogo();
-        //this.renderShadow();
-    }
-
-    renderFlipCardA() {
-        this.flipCardA = new FlipCard({
-            node: this.node.addChild(),
+        this.flipCardA = this.flipCardFactory({
+            alphaId: 'A',
             model: {
                 order: 1,
                 zPos: this.baseZPos.top
             }
         });
 
-        this.flipCardA.el.addClass('card-a');
-
         this.flipCardA.rotation.set((180 * Math.PI) / 180);
 
-        this.carA =  new Car({
-            node: this.flipCardA.node.addChild(),
-            tagName: 'img',
-            model: {
-                currentImage: this.currentImage
-            }
-        });
-
-        this.titleA = new Title({
-            tagName: 'h1',
-            node: this.flipCardA.node.addChild(),
-            model: {
-                text: Phrase.getCurrentPhrase()
-            }
-         });
-    }
-
-    renderFlipCardB() {
-        this.flipCardB = new FlipCard({
-            node: this.node.addChild(),
+        this.flipCardB = this.flipCardFactory({
+            alphaId: 'B',
             model: {
                 order: 2,
                 zPos: this.baseZPos.bottom
             }
         });
 
-        this.flipCardB.el.addClass('card-b');
-
-
-        this.carB =  new Car({
-            node: this.flipCardB.node.addChild(),
-            tagName: 'img',
-            model: {
-                currentImage: this.currentImage
-            }
-        });
-
-        this.titleB = new Title({
-            tagName: 'h1',
-            node: this.flipCardB.node.addChild(),
-            model: {
-                text: Phrase.getCurrentPhrase()
-            }
-        });
-    }
-
-    renderFlipCardC() {
+        //We need to bump the image between these B and C
         this.currentImage++;
 
-        this.flipCardC = new FlipCard({
-            node: this.node.addChild(),
+        this.flipCardC = this.flipCardFactory({
+            alphaId: 'C',
             model: {
                 order: 3,
                 zPos: this.baseZPos.next
             }
         });
 
-        this.flipCardC.el.addClass('card-c');
+        this.renderLogo();
+    }
 
-        this.carC =  new Car({
-            node: this.flipCardC.node.addChild(),
+    flipCardFactory(config) {
+        let flipCard = new FlipCard({
+            model: config.model,
+            node: this.node.addChild()
+        });
+
+        flipCard.el.addClass('card-' + config.alphaId);
+
+        this["car" + config.alphaId] =  new Car({
+            node: flipCard.node.addChild(),
             tagName: 'img',
             model: {
                 currentImage: this.currentImage
             }
         });
 
-        this.titleC = new Title({
+        this["title" + config.alphaId] = new Title({
             tagName: 'h1',
-            node: this.flipCardC.node.addChild(),
+            node: flipCard.node.addChild(),
             model: {
                 text: Phrase.getCurrentPhrase()
             }
         });
+
+        return flipCard;
     }
 
     renderLogo() {
@@ -158,12 +121,12 @@ class App extends DomView {
         this.logo.position.setY(75);
         this.logo.opacity.set(0);
 
-        this.logoCircles = this.renderLogoImages([4, 5, 6, 7]);
-        this.logoLetters = this.renderLogoImages([8, 9, 10]);
-        this.logoQuadrants = this.renderLogoImages([0, 1, 2, 3]);
+        this.logoCircles = this.logoImageFactory([4, 5, 6, 7]);
+        this.logoLetters = this.logoImageFactory([8, 9, 10]);
+        this.logoQuadrants = this.logoImageFactory([0, 1, 2, 3]);
     }
 
-    renderLogoImages(imageNumbers) {
+    logoImageFactory(imageNumbers) {
         const _this = this;
         let imageViews = [];
 
@@ -206,7 +169,6 @@ class App extends DomView {
         setTimeout(flipIt, duration);
 
         function flipIt() {
-            //_this.shadow.opacity.set(.33);
 
             _this.currentImage++;
             // Determine what cards are where
@@ -249,8 +211,7 @@ class App extends DomView {
                 bottomCard.view.advance(_this.baseZPos.top);
                 topCard.car.updateImage(_this.currentImage);
 
-                // 12 is the last iteration for the
-                if(Phrase.getCurrentIndex() <  Phrase._letters.length) {
+                if(Phrase.getCurrentIndex() <  12) {
                     topCard.title.update(Phrase.getCurrentPhrase());
                 } else {
                     topCard.title.opacity.set(0);
@@ -266,47 +227,7 @@ class App extends DomView {
                 if(_this.currentImage < 35) {
                     setTimeout(flipIt(), duration);
                 }
-            });//TODO: Callback bug
-
-            // Put in callback
-            /*setTimeout(function() {
-                nextCard.view.advance(_this.baseZPos.bottom);
-                topCard.view.advance(_this.baseZPos.next, true);
-                bottomCard.view.advance(_this.baseZPos.top);
-                topCard.car.updateImage(_this.currentImage);
-
-                if(Phrase.getCurrentIndex() <  12) {
-                    topCard.title.update(Phrase.getCurrentPhrase());
-                } else {
-                    topCard.title.opacity.set(0);
-                     if(!_this.timelineInitialized) {
-                        _this.initTimeline();
-                     }
-                }
-
-                if(duration > 100) { duration = duration * .85; }
-                if(_this.currentImage < 35) { setTimeout(flipIt(), duration); }
-            }, duration);*/
-
-            //Shadow
-            /*_this.shadow.size.setAbsolute(422, 0, 1, {
-                duration: duration / 1.5
-            }); //TODO: Callback needs to go here
-
-            //TODO This needs to go in the callback
-            setTimeout(function() {
-                _this.shadow.position.setY(0, {
-                    duration: duration / 2.5
-                });
-
-                _this.shadow.size.setAbsolute(422, 385, 1, {
-                    duration: duration / 2.5
-                });
-            }, duration / 2);
-
-            setTimeout(function() {
-                _this.shadow.opacity.set(0);
-            }, duration);*/
+            });
         }
     }
 

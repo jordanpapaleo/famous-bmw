@@ -6,12 +6,14 @@ export class FlipCard extends DomView {
     setProperties() {
         this.origin.set(0, 0);
         this.align.set(0, .5);
+
+        console.log('zPos',this.model.zPos);
         this.position.setZ(this.model.zPos);
         this.size.setProportional(1,.5, 1);
     }
 
     render() {
-        this.el.property('border-bottom', '1px solid gray');
+        this.el.property('z-index', this.model.zPos);
     }
 
     advance(n, reset) {
@@ -19,8 +21,9 @@ export class FlipCard extends DomView {
             this.rotation.setX(0);
         }
 
-        this.model.zSpace = n;
+        this.model.zPos = n;
         this.position.setZ(n);
+        this.el.property('z-index', n);
 
         switch(this.model.order) {
             case 1:
@@ -38,9 +41,5 @@ export class FlipCard extends DomView {
 
     getOrder() {
         return this.model.order;
-    }
-
-    setOrder(n) {
-        this.model.order = n;
     }
 }

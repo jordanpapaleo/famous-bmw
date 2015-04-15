@@ -5,6 +5,11 @@ html {
     font-family: 'Open Sans', Helvetica, sans-serif;
 }
 
+* {
+    -webkit-transform-style: preserve-3d; /* Chrome, Safari, Opera */
+    transform-style: preserve-3d;
+}
+
 body {
     -webkit-perspective:10000px;
     perspective:10000px;

@@ -8,11 +8,12 @@ export class Car extends DomView {
     }
 
     render() {
-        this.el.attribute('src', 'assets/images/car/' + this.model.currentImage + '.jpeg');
+        if(this.model.currentImage >= 0) {
+            this.el.attribute('src', 'assets/images/car/' + this.model.currentImage + '.jpeg');
+        }
 
         UI.setStyle(this, {
-            'backface-visibility': 'hidden',
-            //'box-shadow': '0px 0px 28px 8px rgba(0,0,0,0.75)'
+            'backface-visibility': 'hidden'
         });
     }
 
