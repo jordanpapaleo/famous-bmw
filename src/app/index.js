@@ -31,6 +31,7 @@ class App extends DomView {
         this.renderFlipCards();
         this.renderLogo();
         this.renderClosingText();
+        this.renderShadow();
 
         this.initFlipBook();
     }
@@ -186,19 +187,37 @@ class App extends DomView {
     }
 
     renderShadow() {
-        this.shadow = new DomView({
+        this.shadowTop = new DomView({
             node: this.node.addChild(),
-            model: {}
         });
 
-        this.shadow.position.setZ(this.baseZPos.shadow);
-        this.shadow.size.setAbsolute(422, 385);
-        this.shadow.align.set(0, 0);
-        this.shadow.position.setY(385);
-        this.shadow.opacity.set(0);
+        this.shadowTop.setStyle({
+            'z-index': this.baseZPos.shadow,
+            'background-color': '#C1FD33',
+            'backface-visibility': 'visible'
+        });
 
-        this.shadow.el.property('background-color', '#000000');
-        this.shadow.el.property('backface-visibility', 'visible');
+        this.shadowTop.position.setZ(this.baseZPos.shadow);
+        this.shadowTop.size.setProportional(1, 0);
+        this.shadowTop.mountPoint.set(0, 1);
+        this.shadowTop.align.set(0, .5);
+        this.shadowTop.opacity.set(.33);
+
+        this.shadowBottom = new DomView({
+            node: this.node.addChild(),
+        });
+
+        this.shadowBottom.setStyle({
+            'z-index': this.baseZPos.shadow,
+            'background-color': '#FC5AB8',
+            'backface-visibility': 'visible'
+        });
+
+        this.shadowBottom.position.setZ(this.baseZPos.shadow);
+        this.shadowBottom.size.setProportional(1, .5);
+        this.shadowBottom.mountPoint.set(0, 0);
+        this.shadowBottom.align.set(0, .5);
+        this.shadowBottom.opacity.set(.33);
     }
 
     initFlipBook() {
