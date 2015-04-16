@@ -264,7 +264,7 @@ class App extends DomView {
 
             _this.clock.setTimeout(function() {
                 _this.shadowTop.opacity.set(.33, {
-                    duration: duration / 2
+                    duration
                 });
             }, duration / 2);
 
