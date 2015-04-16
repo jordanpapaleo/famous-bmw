@@ -5,7 +5,7 @@ export class View {
         options = options || {};
 
         this.node = options.node;
-        this.model = options.model;
+        this.model = options.model || {};
         this.dispatch = this.node.getDispatch();
 
         this.align = new components.Align(this.dispatch);

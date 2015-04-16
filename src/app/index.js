@@ -28,6 +28,7 @@ class App extends DomView {
             shadow: 100
         };
 
+        //this.renderShadow();
         this.renderFlipCards();
         this.renderLogo();
         this.renderClosingText();
@@ -114,6 +115,7 @@ class App extends DomView {
             model: {}
         });
 
+        this.logo.opacity.set(0);
         this.logo.size.setAbsolute(225, 225);
         this.logo.position.setZ(200);
         this.logo.el.property('z-index', 200);
@@ -121,7 +123,6 @@ class App extends DomView {
         this.logo.mountPoint.set(.5, 0);
         this.logo.origin.set(.5, .5);
         this.logo.position.setY(75);
-        this.logo.opacity.set(0);
 
         this.logoCircles = this.logoImageFactory([4, 5, 6, 7]);
         this.logoLetters = this.logoImageFactory([8, 9, 10]);
@@ -188,28 +189,28 @@ class App extends DomView {
 
     renderShadow() {
         this.shadowTop = new DomView({
-            node: this.node.addChild(),
+            node: this.node.addChild()
         });
 
         this.shadowTop.setStyle({
             'z-index': this.baseZPos.shadow,
-            'background-color': '#C1FD33',
+            'background-color': '#000000',
             'backface-visibility': 'visible'
         });
 
         this.shadowTop.position.setZ(this.baseZPos.shadow);
-        this.shadowTop.size.setProportional(1, 0);
+        this.shadowTop.size.setProportional(1, .5);
         this.shadowTop.mountPoint.set(0, 1);
         this.shadowTop.align.set(0, .5);
-        this.shadowTop.opacity.set(.33);
+        this.shadowTop.opacity.set(0);
 
         this.shadowBottom = new DomView({
-            node: this.node.addChild(),
+            node: this.node.addChild()
         });
 
         this.shadowBottom.setStyle({
             'z-index': this.baseZPos.shadow,
-            'background-color': '#FC5AB8',
+            'background-color': '#000000',
             'backface-visibility': 'visible'
         });
 
@@ -222,7 +223,7 @@ class App extends DomView {
 
     initFlipBook() {
         const _this = this;
-        let duration = 750;
+        let duration = 1000; //750
         let isLastFlip = false;
 
         this.clock.setTimeout(flipIt, duration);
@@ -261,6 +262,22 @@ class App extends DomView {
                 }
             });
 
+            _this.clock.setTimeout(function() {
+                _this.shadowTop.opacity.set(.33, {
+                    duration: duration / 2
+                });
+            }, duration / 2);
+
+
+            _this.shadowBottom.opacity.set(0, {
+                duration: duration / 2
+            }, function() {
+                _this.clock.setTimeout(function() {
+                    if(!isLastFlip)
+                        _this.shadowBottom.opacity.set(.33);
+                }, duration / 2);
+            });
+
             // Flip bottomCard to top
             bottomCard.view.rotation.setX((180 * Math.PI) / 180, {
                 duration,
@@ -268,6 +285,8 @@ class App extends DomView {
             }, function() {
                 //On the last card we just want to flip the card, NOT advance or recurse flipIt
                 if(!isLastFlip) {
+                    _this.shadowTop.opacity.set(0);
+
                     nextCard.view.advance(_this.baseZPos.bottom);
                     topCard.view.advance(_this.baseZPos.next, true);
                     bottomCard.view.advance(_this.baseZPos.top);
@@ -280,11 +299,16 @@ class App extends DomView {
 
                         if (!_this.timelineInitialized) {
                             _this.initTimeline();
+                            /*topCard.view.el.property('background-color', 'rgba(255,255,255,0)');
+                            bottomCard.view.el.property('background-color', 'rgba(255,255,255,0)');
+                            nextCard.view.el.property('background-color', 'rgba(255,255,255,0)');
+                            _this.shadowBottom.opacity.set(0);
+                            _this.shadowTop.opacity.set(0);*/
                         }
                     }
 
                     if (duration > 25) {
-                        duration = duration * .75;
+                        duration = duration * .80;
                     }
 
                     if (_this.currentImage === 35) {
@@ -292,6 +316,9 @@ class App extends DomView {
                     }
 
                     _this.clock.setTimeout(flipIt, duration);
+                } else {
+                    _this.shadowBottom.opacity.set(0);
+                    _this.shadowTop.opacity.set(0);
                 }
             });
         }
@@ -346,8 +373,6 @@ class App extends DomView {
         this.registerCar();
         this.registerLogo();
         this.registerClosingText();
-
-        this.logo.opacity.set(1);
 
         this.timeline.set(this.time.end, { duration: this.time.end });
     }
@@ -537,10 +562,13 @@ class App extends DomView {
             time: this.time.car.a[0],
             direction: 1,
             fn: function() {
-                //debugger;
+                //FLip card A is the view that holds the animating car
+                _this.flipCardA.position.setZ(102);
+                _this.flipCardA.setStyle({
+                    'z-index': _this.baseZPos.bottom + 1
+                });
             }
         });
-
 
         this.timeline.registerCallback({
             time: this.time.car.b[0],
@@ -563,6 +591,15 @@ class App extends DomView {
                 [this.time.logo.a[2], [1, 1, 1], Curves.easeInOut]
             ]
         });*/
+
+        this.timeline.registerComponent({
+            component: this.logo.opacity,
+            path: [
+                [this.time.start, 0],
+                [this.time.quad.a - 1, 0],
+                [this.time.quad.a, 1]
+            ]
+        })
 
         this.timeline.registerCallback({
             time: this.time.logo.a[0],

@@ -12,7 +12,10 @@ export class FlipCard extends DomView {
     }
 
     render() {
-        this.el.property('z-index', this.model.zPos);
+        this.setStyle({
+            'z-index': this.model.zPos,
+            'background-color': '#FFFFFF'
+        });
     }
 
     advance(n, reset) {
@@ -22,7 +25,10 @@ export class FlipCard extends DomView {
 
         this.model.zPos = n;
         this.position.setZ(n);
-        this.el.property('z-index', n);
+
+        this.setStyle({
+            'z-index': this.model.zPos,
+        });
 
         switch(this.model.order) {
             case 1:
