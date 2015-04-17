@@ -1,4 +1,4 @@
-import {components, domRenderables} from 'famous';
+import {components} from 'famous';
 
 export class View {
     constructor(options) {
@@ -21,5 +21,7 @@ export class View {
         this.setProperties();
     }
 
-    setProperties() { }
+    setProperties() {
+        //Override
+    }
 }

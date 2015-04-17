@@ -1,10 +1,8 @@
-import {core, domRenderables, components, transitions} from 'famous';
-import {View} from '../shared/View';
+import {core, transitions} from 'famous';
 import {DomView} from '../shared/DomView';
 import {GLView} from '../shared/GLView';
 import {Timeline} from '../shared/Timeline';
 import {Car} from './Car';
-import {Logo} from './Logo';
 import {Title} from './Title';
 import {FlipCard} from './FlipCard';
 import Phrase from './PhraseService';
@@ -29,12 +27,11 @@ class App extends DomView {
             shadow: 100
         };
 
-        //this.renderFlipCards();
-        //this.renderLogo();
-        //this.renderClosingText();
-        //this.renderShadow();
-
-        //this.initFlipBook();
+        this.renderFlipCards();
+        this.renderLogo();
+        this.renderClosingText();
+        this.renderShadow();
+        this.initFlipBook();
 
         this.gl = new GLView({
             node: this.node.addChild()
@@ -49,7 +46,7 @@ class App extends DomView {
 
     render() {
         UI.setStyle(this, {
-            'border': "1px solid #000000",
+            'border': '1px solid #000000',
             'overflow': 'hidden'
         });
     }
@@ -94,7 +91,7 @@ class App extends DomView {
 
         flipCard.el.addClass('card-' + config.alphaId);
 
-        this["car" + config.alphaId] =  new Car({
+        this['car' + config.alphaId] =  new Car({
             node: flipCard.node.addChild(),
             tagName: 'img',
             model: {
@@ -102,7 +99,7 @@ class App extends DomView {
             }
         });
 
-        this["title" + config.alphaId] = new Title({
+        this['title' + config.alphaId] = new Title({
             tagName: 'h1',
             node: flipCard.node.addChild(),
             model: {
@@ -272,13 +269,13 @@ class App extends DomView {
                 });
             }, duration / 2);
 
-
             _this.shadowBottom.opacity.set(0, {
                 duration: duration / 2
             }, function() {
                 _this.clock.setTimeout(function() {
-                    if(!isLastFlip)
+                    if(!isLastFlip) {
                         _this.shadowBottom.opacity.set(.33);
+                    }
                 }, duration / 2);
             });
 
@@ -573,14 +570,12 @@ class App extends DomView {
             direction: 1,
             fn: function() {
                 _this.carA.updateImage('orange_mirrored');
-                _this.carA.size.setAbsolute(550, 367)
+                _this.carA.size.setAbsolute(550, 367);
             }
         });
     }
 
     registerLogo() {
-        const _this = this;
-
         this.timeline.registerComponent({
             component: this.logo.opacity,
             path: [
@@ -599,28 +594,6 @@ class App extends DomView {
                 [this.time.logo.a[2], [.8, .8, .8]]
             ]
         });
-
-        /*this.timeline.registerCallback({
-            time: this.time.logo.a[0],
-            direction: 1,
-            fn: function() {
-                _this.logo.scale.set(.75, .75, .75, {
-                    curve: Curves.outCubic,
-                    duration: 500
-                })
-            }
-        });
-
-        this.timeline.registerCallback({
-            time: this.time.logo.a[1],
-            direction: 1,
-            fn: function() {
-                _this.logo.scale.set(.8, .8, .8, {
-                    curve: Curves.inCubic,
-                    duration: 500
-                })
-            }
-        });*/
 
         this.timeline.registerComponent({
             component: this.logo.position,

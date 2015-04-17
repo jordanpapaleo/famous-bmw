@@ -1,5 +1,4 @@
 import {DomView} from '../shared/DomView';
-import {Timeline} from '../shared/Timeline';
 import UI from '../utils/UI';
 
 export class Title extends DomView {

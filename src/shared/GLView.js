@@ -26,8 +26,7 @@ export class GLView extends View {
             var b = Math.random() * 255;
 
             var color = new Color([r, g, b]);
-                colors.push(color);
-
+            colors.push(color);
 
             new Light(this.dispatch, color);
         }

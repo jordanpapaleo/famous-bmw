@@ -25,7 +25,7 @@ Phrase.getCurrentPhrase = function() {
     if(letter) {
         if(letter === ' ') {
             this._currentPhrase += '<br>';
-            letter = this._getNextLetter()
+            letter = this._getNextLetter();
         }
 
         this._currentPhrase += letter;

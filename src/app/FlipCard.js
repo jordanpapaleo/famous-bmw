@@ -1,6 +1,4 @@
 import {DomView} from '../shared/DomView';
-import {Timeline} from '../shared/Timeline';
-import UI from '../utils/UI';
 
 export class FlipCard extends DomView {
     setProperties() {
@@ -8,7 +6,7 @@ export class FlipCard extends DomView {
         this.align.set(0, .5);
 
         this.position.setZ(this.model.zPos);
-        this.size.setProportional(1,.5, 1);
+        this.size.setProportional(1, .5, 1);
     }
 
     render() {
@@ -27,7 +25,7 @@ export class FlipCard extends DomView {
         this.position.setZ(n);
 
         this.setStyle({
-            'z-index': this.model.zPos,
+            'z-index': this.model.zPos
         });
 
         switch(this.model.order) {
