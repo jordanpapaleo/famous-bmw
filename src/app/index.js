@@ -1,6 +1,7 @@
 import {core, domRenderables, components, transitions} from 'famous';
 import {View} from '../shared/View';
 import {DomView} from '../shared/DomView';
+import {GLView} from '../shared/GLView';
 import {Timeline} from '../shared/Timeline';
 import {Car} from './Car';
 import {Logo} from './Logo';
@@ -9,7 +10,7 @@ import {FlipCard} from './FlipCard';
 import Phrase from './PhraseService';
 import UI from '../utils/UI';
 
-const Curves  = transitions.Curves;
+const Curves   = transitions.Curves;
 const Famous   = core.Famous;
 
 class App extends DomView {
@@ -28,13 +29,16 @@ class App extends DomView {
             shadow: 100
         };
 
+        //this.renderFlipCards();
+        //this.renderLogo();
+        //this.renderClosingText();
         //this.renderShadow();
-        this.renderFlipCards();
-        this.renderLogo();
-        this.renderClosingText();
-        this.renderShadow();
 
-        this.initFlipBook();
+        //this.initFlipBook();
+
+        this.gl = new GLView({
+            node: this.node.addChild()
+        });
     }
 
     setProperties() {
@@ -299,11 +303,6 @@ class App extends DomView {
 
                         if (!_this.timelineInitialized) {
                             _this.initTimeline();
-                            /*topCard.view.el.property('background-color', 'rgba(255,255,255,0)');
-                            bottomCard.view.el.property('background-color', 'rgba(255,255,255,0)');
-                            nextCard.view.el.property('background-color', 'rgba(255,255,255,0)');
-                            _this.shadowBottom.opacity.set(0);
-                            _this.shadowTop.opacity.set(0);*/
                         }
                     }
 
@@ -551,10 +550,9 @@ class App extends DomView {
             path: [
                 [this.time.start, [0, 0]],
                 [this.time.car.a[0], [0, 0]],
-                [this.time.car.a[1], [400, -600]],
-                [this.time.car.b[0], [400, -800]],
-                [this.time.car.b[1], [0, -400]]
-                //[this.time.car.a[1], [window.innerWidth * 1.1, -window.innerHeight, 3], Curves.inCirc]
+                [this.time.car.a[1], [400, -600], Curves.outCirc],
+                [this.time.car.b[0], [400, -825]],
+                [this.time.car.b[1], [-50, -375], Curves.inCirc]
             ]
         });
 
@@ -582,15 +580,6 @@ class App extends DomView {
 
     registerLogo() {
         const _this = this;
-        /*this.timeline.registerComponent({
-            component: this.logo.scale,
-            path: [
-                [this.time.start, [1, 1, 1]],
-                [this.time.logo.a[0], [1, 1, 1]],
-                [this.time.logo.a[1], [.5, .5, .5], Curves.easeInOut],
-                [this.time.logo.a[2], [1, 1, 1], Curves.easeInOut]
-            ]
-        });*/
 
         this.timeline.registerComponent({
             component: this.logo.opacity,
@@ -599,9 +588,19 @@ class App extends DomView {
                 [this.time.quad.a - 1, 0],
                 [this.time.quad.a, 1]
             ]
-        })
+        });
 
-        this.timeline.registerCallback({
+        this.timeline.registerComponent({
+            component: this.logo.scale,
+            path: [
+                [this.time.start, [1, 1, 1]],
+                [this.time.logo.a[0], [1, 1, 1]],
+                [this.time.logo.a[1], [.75, .75, .75], Curves.outCubic],
+                [this.time.logo.a[2], [.8, .8, .8]]
+            ]
+        });
+
+        /*this.timeline.registerCallback({
             time: this.time.logo.a[0],
             direction: 1,
             fn: function() {
@@ -621,38 +620,15 @@ class App extends DomView {
                     duration: 500
                 })
             }
-        });
+        });*/
 
-        /*this.timeline.registerComponent({
+        this.timeline.registerComponent({
             component: this.logo.position,
             path: [
                 [this.time.start, [0, 75, 0]],
                 [this.time.logo.a[0], [0, 75, 0]],
-                [this.time.logo.a[1], [0, 175, 0], Curves.linear],
-                [this.time.logo.a[2], [0, 250, 0], Curves.easeOutBounce]
+                [this.time.logo.a[2], [0, 350, 0], Curves.easeIn]
             ]
-        });*/
-
-        this.timeline.registerCallback({
-            time: this.time.logo.a[0],
-            direction: 1,
-            fn: function() {
-                _this.logo.position.setY(225, {
-                    curve: Curves.inCirc,
-                    duration: 500
-                })
-            }
-        });
-
-        this.timeline.registerCallback({
-            time: this.time.logo.a[0],
-            direction: 1,
-            fn: function() {
-                _this.logo.position.setY(350, {
-                    curve: Curves.outCirc,
-                    duration: 500
-                })
-            }
         });
     }
 
