@@ -143,7 +143,8 @@ class App extends DomView {
                 }
             });
 
-            image.el.attribute('src', 'assets/images/logo/' + imageNumber + '.png');
+            //image.el.attribute('src', 'assets/images/logo/' + imageNumber + '.png');
+            image.el.attribute('src', 'assets/svg/logo/' + imageNumber + '.svg');
             imageViews.push(image);
         });
 
