@@ -1,15 +1,14 @@
-import {core, domRenderables, components, transitions} from 'famous';
-import {View} from '../shared/View';
+import {core, transitions} from 'famous';
 import {DomView} from '../shared/DomView';
+import {GLView} from '../shared/GLView';
 import {Timeline} from '../shared/Timeline';
 import {Car} from './Car';
-import {Logo} from './Logo';
 import {Title} from './Title';
 import {FlipCard} from './FlipCard';
 import Phrase from './PhraseService';
 import UI from '../utils/UI';
 
-const Curves  = transitions.Curves;
+const Curves   = transitions.Curves;
 const Famous   = core.Famous;
 
 class App extends DomView {
@@ -28,13 +27,15 @@ class App extends DomView {
             shadow: 100
         };
 
-        //this.renderShadow();
         this.renderFlipCards();
         this.renderLogo();
         this.renderClosingText();
         this.renderShadow();
-
         this.initFlipBook();
+
+        this.gl = new GLView({
+            node: this.node.addChild()
+        });
     }
 
     setProperties() {
@@ -45,7 +46,7 @@ class App extends DomView {
 
     render() {
         UI.setStyle(this, {
-            'border': "1px solid #000000",
+            'border': '1px solid #000000',
             'overflow': 'hidden'
         });
     }
@@ -90,7 +91,7 @@ class App extends DomView {
 
         flipCard.el.addClass('card-' + config.alphaId);
 
-        this["car" + config.alphaId] =  new Car({
+        this['car' + config.alphaId] =  new Car({
             node: flipCard.node.addChild(),
             tagName: 'img',
             model: {
@@ -98,7 +99,7 @@ class App extends DomView {
             }
         });
 
-        this["title" + config.alphaId] = new Title({
+        this['title' + config.alphaId] = new Title({
             tagName: 'h1',
             node: flipCard.node.addChild(),
             model: {
@@ -142,7 +143,8 @@ class App extends DomView {
                 }
             });
 
-            image.el.attribute('src', 'assets/images/logo/' + imageNumber + '.png');
+            //image.el.attribute('src', 'assets/images/logo/' + imageNumber + '.png');
+            image.el.attribute('src', 'assets/svg/logo/' + imageNumber + '.svg');
             imageViews.push(image);
         });
 
@@ -264,17 +266,17 @@ class App extends DomView {
 
             _this.clock.setTimeout(function() {
                 _this.shadowTop.opacity.set(.33, {
-                    duration: duration / 2
+                    duration
                 });
             }, duration / 2);
-
 
             _this.shadowBottom.opacity.set(0, {
                 duration: duration / 2
             }, function() {
                 _this.clock.setTimeout(function() {
-                    if(!isLastFlip)
+                    if(!isLastFlip) {
                         _this.shadowBottom.opacity.set(.33);
+                    }
                 }, duration / 2);
             });
 
@@ -299,11 +301,6 @@ class App extends DomView {
 
                         if (!_this.timelineInitialized) {
                             _this.initTimeline();
-                            /*topCard.view.el.property('background-color', 'rgba(255,255,255,0)');
-                            bottomCard.view.el.property('background-color', 'rgba(255,255,255,0)');
-                            nextCard.view.el.property('background-color', 'rgba(255,255,255,0)');
-                            _this.shadowBottom.opacity.set(0);
-                            _this.shadowTop.opacity.set(0);*/
                         }
                     }
 
@@ -551,10 +548,9 @@ class App extends DomView {
             path: [
                 [this.time.start, [0, 0]],
                 [this.time.car.a[0], [0, 0]],
-                [this.time.car.a[1], [400, -600]],
-                [this.time.car.b[0], [400, -800]],
-                [this.time.car.b[1], [0, -400]]
-                //[this.time.car.a[1], [window.innerWidth * 1.1, -window.innerHeight, 3], Curves.inCirc]
+                [this.time.car.a[1], [400, -600], Curves.outCirc],
+                [this.time.car.b[0], [400, -825]],
+                [this.time.car.b[1], [-50, -375], Curves.inCirc]
             ]
         });
 
@@ -575,23 +571,12 @@ class App extends DomView {
             direction: 1,
             fn: function() {
                 _this.carA.updateImage('orange_mirrored');
-                _this.carA.size.setAbsolute(550, 367)
+                _this.carA.size.setAbsolute(550, 367);
             }
         });
     }
 
     registerLogo() {
-        const _this = this;
-        /*this.timeline.registerComponent({
-            component: this.logo.scale,
-            path: [
-                [this.time.start, [1, 1, 1]],
-                [this.time.logo.a[0], [1, 1, 1]],
-                [this.time.logo.a[1], [.5, .5, .5], Curves.easeInOut],
-                [this.time.logo.a[2], [1, 1, 1], Curves.easeInOut]
-            ]
-        });*/
-
         this.timeline.registerComponent({
             component: this.logo.opacity,
             path: [
@@ -599,60 +584,25 @@ class App extends DomView {
                 [this.time.quad.a - 1, 0],
                 [this.time.quad.a, 1]
             ]
-        })
-
-        this.timeline.registerCallback({
-            time: this.time.logo.a[0],
-            direction: 1,
-            fn: function() {
-                _this.logo.scale.set(.75, .75, .75, {
-                    curve: Curves.outCubic,
-                    duration: 500
-                })
-            }
         });
 
-        this.timeline.registerCallback({
-            time: this.time.logo.a[1],
-            direction: 1,
-            fn: function() {
-                _this.logo.scale.set(.8, .8, .8, {
-                    curve: Curves.inCubic,
-                    duration: 500
-                })
-            }
+        this.timeline.registerComponent({
+            component: this.logo.scale,
+            path: [
+                [this.time.start, [1, 1, 1]],
+                [this.time.logo.a[0], [1, 1, 1]],
+                [this.time.logo.a[1], [.75, .75, .75], Curves.outCubic],
+                [this.time.logo.a[2], [.8, .8, .8]]
+            ]
         });
 
-        /*this.timeline.registerComponent({
+        this.timeline.registerComponent({
             component: this.logo.position,
             path: [
                 [this.time.start, [0, 75, 0]],
                 [this.time.logo.a[0], [0, 75, 0]],
-                [this.time.logo.a[1], [0, 175, 0], Curves.linear],
-                [this.time.logo.a[2], [0, 250, 0], Curves.easeOutBounce]
+                [this.time.logo.a[2], [0, 350, 0], Curves.easeIn]
             ]
-        });*/
-
-        this.timeline.registerCallback({
-            time: this.time.logo.a[0],
-            direction: 1,
-            fn: function() {
-                _this.logo.position.setY(225, {
-                    curve: Curves.inCirc,
-                    duration: 500
-                })
-            }
-        });
-
-        this.timeline.registerCallback({
-            time: this.time.logo.a[0],
-            direction: 1,
-            fn: function() {
-                _this.logo.position.setY(350, {
-                    curve: Curves.outCirc,
-                    duration: 500
-                })
-            }
         });
     }
 

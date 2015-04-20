@@ -19,6 +19,5 @@
         "requireParamTypes": false
     },
     "validateQuoteMarks": "'",
-    "disallowMultipleVarDecl": "exceptUndefined",
     "disallowSpacesInsideParentheses": true
 }

@@ -7,7 +7,7 @@ export class DomView extends View {
         options = options || {};
         super(options);
 
-        options.tagName = (options.hasOwnProperty('tagName')) ? options.tagName : "div";
+        options.tagName = (options.hasOwnProperty('tagName')) ? options.tagName : 'div';
 
         this.el = new domRenderables.HTMLElement(this.dispatch, {
             tagName: options.tagName
