@@ -2,17 +2,17 @@ import {DomView} from '../shared/DomView';
 
 export class FlipCard extends DomView {
     setProperties() {
-        this.origin.set(0, 0);
+        this.mountPoint.set(0, 0);
         this.align.set(0, .5);
-
+        this.origin.set(0, 0);
+        this.setSize(['relative', 1], ['relative', .5]);
         this.position.setZ(this.model.zPos);
-        this.size.setProportional(1, .5, 1);
     }
 
     render() {
         this.setStyle({
-            'z-index': this.model.zPos,
-            'background-color': '#FFFFFF'
+            'zIndex': this.model.zPos,
+            'backgroundColor': '#FFFFFF'
         });
     }
 

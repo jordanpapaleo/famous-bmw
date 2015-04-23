@@ -16,7 +16,7 @@ export class GLView extends View {
         this.sphere  = new Sphere(this.node.addChild());
         this.plane = new Plane(this.node.addChild());
 
-        this.mesh = new Mesh(this.dispatch);
+        this.mesh = new Mesh(this.node);
         this.mesh.getGeometry();
 
         var colors = [];
@@ -28,7 +28,7 @@ export class GLView extends View {
             var color = new Color([r, g, b]);
             colors.push(color);
 
-            new Light(this.dispatch, color);
+            new Light(this.node, color);
         }
 
         /**

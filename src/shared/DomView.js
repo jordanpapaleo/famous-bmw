@@ -9,7 +9,7 @@ export class DomView extends View {
 
         options.tagName = (options.hasOwnProperty('tagName')) ? options.tagName : 'div';
 
-        this.el = new domRenderables.HTMLElement(this.dispatch, {
+        this.el = new domRenderables.DOMElement(this.node, {
             tagName: options.tagName
         });
 
@@ -22,7 +22,7 @@ export class DomView extends View {
 
     onGlobalEvent(evName, fn) {
         if(!this.eventHandler) {
-            this.eventHandler = new components.EventHandler(this.dispatch);
+            this.eventHandler = new components.EventHandler(this.node);
         }
 
         this.eventHandler.on(evName, fn);

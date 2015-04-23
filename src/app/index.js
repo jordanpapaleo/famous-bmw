@@ -2,11 +2,11 @@ import {core, transitions} from 'famous';
 import {DomView} from '../shared/DomView';
 import {GLView} from '../shared/GLView';
 import {Timeline} from '../shared/Timeline';
+//import {Timeline} from 'famous-creative/Timeline';
 import {Car} from './Car';
 import {Title} from './Title';
 import {FlipCard} from './FlipCard';
 import Phrase from './PhraseService';
-import UI from '../utils/UI';
 
 const Curves   = transitions.Curves;
 const Famous   = core.Famous;
@@ -28,24 +28,24 @@ class App extends DomView {
         };
 
         this.renderFlipCards();
-        this.renderLogo();
+        //this.renderLogo();
         this.renderClosingText();
         this.renderShadow();
         this.initFlipBook();
 
-        this.gl = new GLView({
+        /*this.gl = new GLView({
             node: this.node.addChild()
-        });
+        });*/
     }
 
     setProperties() {
         this.mountPoint.set(.5, .5);
         this.align.set(.5, .5);
-        this.size.setAbsolute(420, 768);
+        this.setSize(['absolute', 420], ['absolute', 768]);
     }
 
     render() {
-        UI.setStyle(this, {
+        this.setStyle({
             'border': '1px solid #000000',
             'overflow': 'hidden'
         });
@@ -61,7 +61,7 @@ class App extends DomView {
         });
 
         // Flip the card to the top position
-        this.flipCardA.rotation.set((180 * Math.PI) / 180);
+        this.flipCardA.rotation.set((180 * Math.PI) / 180, 0, 0);
 
         this.flipCardB = this.flipCardFactory({
             alphaId: 'B',
@@ -71,7 +71,7 @@ class App extends DomView {
             }
         });
 
-        //We need to bump the image between these B and C
+        // We need to bump the image between these B and C
         this.currentImage++;
 
         this.flipCardC = this.flipCardFactory({
@@ -117,9 +117,10 @@ class App extends DomView {
         });
 
         this.logo.opacity.set(0);
-        this.logo.size.setAbsolute(225, 225);
+
+        this.logo.setSize(['absolute', 225], ['absolute', 225]);
         this.logo.position.setZ(200);
-        this.logo.el.property('z-index', 200);
+        this.logo.setStyle({'z-index': 200});
         this.logo.align.set(.5, 0);
         this.logo.mountPoint.set(.5, 0);
         this.logo.origin.set(.5, .5);
@@ -144,7 +145,7 @@ class App extends DomView {
             });
 
             //image.el.attribute('src', 'assets/images/logo/' + imageNumber + '.png');
-            image.el.attribute('src', 'assets/svg/logo/' + imageNumber + '.svg');
+            image.el.setAttribute('src', 'assets/svg/logo/' + imageNumber + '.svg');
             imageViews.push(image);
         });
 
@@ -184,8 +185,8 @@ class App extends DomView {
             node: this.node.addChild()
         });
 
-        UI.setStyle(text, config.styles);
-        text.el.content(config.content);
+        text.setStyle(text, config.styles);
+        text.el.setContent(config.content);
         return text;
     }
 
@@ -200,11 +201,13 @@ class App extends DomView {
             'backface-visibility': 'visible'
         });
 
-        this.shadowTop.position.setZ(this.baseZPos.shadow);
-        this.shadowTop.size.setProportional(1, .5);
-        this.shadowTop.mountPoint.set(0, 1);
-        this.shadowTop.align.set(0, .5);
+        this.shadowTop.mountPoint.set(0, 0);
+        this.shadowTop.align.set(0, 0);
         this.shadowTop.opacity.set(0);
+
+        this.shadowTop.setSize(['relative', 1], ['relative', .5]);
+        this.shadowTop.position.setZ(this.baseZPos.shadow);
+        this.shadowTop.el.addClass('shadow-top');
 
         this.shadowBottom = new DomView({
             node: this.node.addChild()
@@ -216,11 +219,13 @@ class App extends DomView {
             'backface-visibility': 'visible'
         });
 
-        this.shadowBottom.position.setZ(this.baseZPos.shadow);
-        this.shadowBottom.size.setProportional(1, .5);
         this.shadowBottom.mountPoint.set(0, 0);
         this.shadowBottom.align.set(0, .5);
         this.shadowBottom.opacity.set(.33);
+        this.shadowBottom.el.addClass('shadow-bottom');
+
+        this.shadowTop.setSize(['relative', 1], ['relative', .5]);
+        this.shadowBottom.position.setZ(this.baseZPos.shadow);
     }
 
     initFlipBook() {
@@ -300,7 +305,7 @@ class App extends DomView {
                         topCard.title.opacity.set(0);
 
                         if (!_this.timelineInitialized) {
-                            _this.initTimeline();
+                            //_this.initTimeline();
                         }
                     }
 
@@ -314,8 +319,10 @@ class App extends DomView {
 
                     _this.clock.setTimeout(flipIt, duration);
                 } else {
-                    _this.shadowBottom.opacity.set(0);
-                    _this.shadowTop.opacity.set(0);
+                    _this.shadowBottom.node.hide();
+                    _this.shadowTop.node.hide();
+                    /*_this.shadowBottom.opacity.set(0);
+                    _this.shadowTop.opacity.set(0);*/
                 }
             });
         }
@@ -571,7 +578,7 @@ class App extends DomView {
             direction: 1,
             fn: function() {
                 _this.carA.updateImage('orange_mirrored');
-                _this.carA.size.setAbsolute(550, 367);
+                _this.carA.setSize(['absolute', 550], ['absolute', 367]);
             }
         });
     }

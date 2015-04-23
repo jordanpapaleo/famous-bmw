@@ -23,21 +23,21 @@ UI.layoutRows = function(views) {
 UI.setStyle = function(view, properties) {
     for(var prop in properties) {
         if(this._prefixedRules.indexOf(prop) === -1) {
-            view.el.property(prop, properties[prop]);
+            view.el.setProperty(prop, properties[prop]);
         } else {
             this._crossBrowserStyle(view.el, prop, properties[prop]);
         }
     }
 };
 
-UI._prefixedRules = ['border-radius', 'backface-visibility', 'box-shadow'];
+UI._prefixedRules = ['border-radius', 'box-shadow'];
 UI._browserPrefixes = ['-webkit-', '-moz-', '-ms-', '-o-'];
 UI._crossBrowserStyle = function(el, prop, value) {
     this._browserPrefixes.forEach(function(prefix) {
-        el.property(prefix + prop, value);
+        el.setProperty(prefix + prop, value);
     });
 
-    el.property(prop, value);
+    el.setProperty(prop, value);
 };
 
 export default UI;

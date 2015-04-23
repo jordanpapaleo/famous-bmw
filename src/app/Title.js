@@ -1,19 +1,20 @@
 import {DomView} from '../shared/DomView';
-import UI from '../utils/UI';
 
 export class Title extends DomView {
     setProperties() {
         this.mountPoint.set(.5, .5);
         this.align.set(.5, .5);
-        this.size.setAbsolute(420, 200, 1);
         this.origin.set(.5, .5);
-        this.rotation.setX((180 * Math.PI) / 180);
+
+        this.setSize(['relative', 1], ['absolute', 200], ['relative', 1]);
+        this.rotation.set((180 * Math.PI) / 180, 0, 0);
+        //this.position.set(0, 0, -1);
     }
 
     render() {
-        this.el.content(this.model.text);
-
-        UI.setStyle(this, {
+        this.el.setContent(this.model.text);
+        this.el.addClass('title');
+        this.setStyle(this, {
             'text-align': 'center',
             'backface-visibility': 'hidden',
             'background-color': '#FFFFFF',
@@ -26,6 +27,6 @@ export class Title extends DomView {
     }
 
     update(titleString) {
-        this.el.content(titleString);
+        this.el.setContent(titleString);
     }
 }
