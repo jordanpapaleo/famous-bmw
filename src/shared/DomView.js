@@ -10,8 +10,13 @@ export class DomView extends View {
         options.tagName = (options.hasOwnProperty('tagName')) ? options.tagName : 'div';
 
         this.el = new domRenderables.DOMElement(this.node, {
-            tagName: options.tagName
+            tagName: options.tagName,
+            properties: options.styles || {}
         });
+
+        if(options.content) {
+            this.el.setContent(options.content);
+        }
 
         this.render();
     }
@@ -56,3 +61,4 @@ export class DomView extends View {
         UI.setStyle(this, properties);
     }
 }
+

@@ -18,11 +18,11 @@ export class Timeline {
         this.componentSet.push(animationData);
     }
 
-    registerCallback(time, fn, direction) {
+    registerCallback(time, direction, fn) {
         this.callbacks.push({
             time: time,
-            fn: fn,
-            direction: (direction || 1)  //what direction to trigger this callback.
+            direction: (direction || 1),  //what direction to trigger this callback.
+            fn: fn
         });
     }
 

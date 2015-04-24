@@ -26,7 +26,9 @@ export class Title extends DomView {
         });
     }
 
-    update(titleString) {
+
+
+    updatePhrase(titleString) {
         this.el.setContent(titleString);
     }
 }

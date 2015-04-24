@@ -18,7 +18,9 @@ export class FlipCard extends DomView {
 
     advance(n, reset) {
         if(reset) {
+            this.node.hide();
             this.rotation.setX(0);
+            this.node.show();
         }
 
         this.model.zPos = n;
