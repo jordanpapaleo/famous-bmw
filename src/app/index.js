@@ -49,10 +49,12 @@ class App extends DomView {
 
     renderFlipCards() {
         this.flipCardA = this.flipCardFactory({
-            alphaId: 'A',
             model: {
+                alphaId: 'A',
                 order: 1,
-                zPos: this.baseZPos.top
+                zPos: this.baseZPos.top,
+                image: this.currentImage,
+                letter: Phrase.getCurrentPhrase()
             }
         });
 
@@ -60,24 +62,26 @@ class App extends DomView {
         this.flipCardA.rotation.setX((180 * Math.PI) / 180);
 
         this.flipCardB = this.flipCardFactory({
-            alphaId: 'B',
             model: {
+                alphaId: 'B',
                 order: 2,
-                zPos: this.baseZPos.bottom
+                zPos: this.baseZPos.bottom,
+                image: this.currentImage,
+                letter: Phrase.getCurrentPhrase()
             }
         });
 
-        // We need to bump the image between these B and C
+        // We need to bump the image between these B and C but not A and B
+        // as the image side of card A is not visible at the start of the rotation
         this.currentImage++;
 
         this.flipCardC = this.flipCardFactory({
-            alphaId: 'C',
             model: {
+                alphaId: 'C',
                 order: 3,
-                zPos: this.baseZPos.next
-            },
-            styles: {
-                background: 'red'
+                zPos: this.baseZPos.next,
+                image: this.currentImage,
+                letter: Phrase.getCurrentPhrase()
             }
         });
     }
@@ -85,24 +89,24 @@ class App extends DomView {
     flipCardFactory(config) {
         let flipCard = new FlipCard({
             model: config.model,
-            node: this.node.addChild()
+            node: this.node.addChild(),
         });
 
-        flipCard.el.addClass('card-' + config.alphaId);
-
-        this['car' + config.alphaId] =  new Car({
+        this['car' + config.model.alphaId] =  new Car({
             node: flipCard.node.addChild(),
             tagName: 'img',
             model: {
-                currentImage: this.currentImage
+                alphaId: config.model.alphaId,
+                currentImage: config.model.image
             }
         });
 
-        this['title' + config.alphaId] = new Title({
+        this['title' + config.model.alphaId] = new Title({
             tagName: 'h1',
             node: flipCard.node.addChild(),
             model: {
-                text: Phrase.getCurrentPhrase()
+                alphaId: config.model.alphaId,
+                text: config.model.letter
             }
         });
 
@@ -227,9 +231,6 @@ class App extends DomView {
         this.clock.setTimeout(flipIt, duration);
 
         function flipIt() {
-            console.log(performance.now())
-            _this.currentImage++;
-
             // In order to advance cards the app needs to determine card position
             let topCard = {}, bottomCard = {}, nextCard = {};
 
@@ -288,15 +289,18 @@ class App extends DomView {
                     nextCard.view.advance(_this.baseZPos.bottom);
                     topCard.view.advance(_this.baseZPos.next, true);
                     bottomCard.view.advance(_this.baseZPos.top);
+
+                    _this.currentImage++;
                     topCard.car.updateImage(_this.currentImage);
+                    //debugger;
 
                     if (Phrase.getCurrentIndex() < 12) {
                         topCard.title.updatePhrase(Phrase.getCurrentPhrase());
                     } else {
                         topCard.title.node.hide();
 
-                        if (!_this.timelineInitialized) {
-                            //_this.initTimeline();
+                        if(!_this.timelineInitialized) {
+                            _this.initTimeline();
                         }
                     }
 

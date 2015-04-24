@@ -7,13 +7,16 @@ export class Title extends DomView {
         this.origin.set(.5, .5);
 
         this.setSize(['relative', 1], ['absolute', 200], ['relative', 1]);
+
+        // Flip the card backwards to be ready for the
+        // rotation up to the top position
         this.rotation.set((180 * Math.PI) / 180, 0, 0);
-        //this.position.set(0, 0, -1);
+        this.position.setZ(-1);
     }
 
     render() {
         this.el.setContent(this.model.text);
-        this.el.addClass('title');
+        this.el.addClass('title-text');
         this.setStyle(this, {
             'text-align': 'center',
             'backface-visibility': 'hidden',
@@ -26,9 +29,8 @@ export class Title extends DomView {
         });
     }
 
-
-
     updatePhrase(titleString) {
+        console.log(this.model.alphaId, titleString);
         this.el.setContent(titleString);
     }
 }

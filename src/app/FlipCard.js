@@ -10,24 +10,27 @@ export class FlipCard extends DomView {
     }
 
     render() {
+        this.el.addClass('card-' + this.model.alphaId);
         this.setStyle({
-            'zIndex': this.model.zPos,
-            'backgroundColor': '#FFFFFF'
+            'z-index': this.model.zPos,
+            'background-color': '#FFFFFF'
         });
     }
 
-    advance(n, reset) {
+    advance(zPos, reset) {
+        console.log(this.model.alphaId, this);
+
         if(reset) {
             this.node.hide();
             this.rotation.setX(0);
             this.node.show();
         }
 
-        this.model.zPos = n;
-        this.position.setZ(n);
+        this.model.zPos = zPos;
+        this.position.setZ(zPos);
 
         this.setStyle({
-            'z-index': this.model.zPos
+            'z-index': zPos
         });
 
         switch(this.model.order) {
