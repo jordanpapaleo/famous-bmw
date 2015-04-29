@@ -29,7 +29,7 @@ class App extends DomView {
 
         this.renderFlipCards();
         this.renderLogo();
-        //this.renderClosingText();
+        this.renderClosingText();
         this.renderShadows();
         this.initFlipBook();
     }
@@ -118,8 +118,7 @@ class App extends DomView {
             node: this.node.addChild(),
             model: {}
         });
-
-        this.logo.node.hide();
+        this.logo.opacity.set(0);
 
         this.logo.setSize(['absolute', 225], ['absolute', 225]);
         this.logo.position.setZ(200);
@@ -217,21 +216,21 @@ class App extends DomView {
         this.shadowBottom.el.addClass('shadow-bottom');
         this.shadowBottom.setSize(['relative', 1], ['relative', .5]);
         this.shadowBottom.position.setZ(this.baseZPos.shadow);
-
-        //TODO HIDING UNTIL OPACITY WORKS
-        this.shadowTop.node.hide();
-        this.shadowBottom.node.hide();
     }
 
     initFlipBook() {
         const _this = this;
-        let duration = 1000;
+        let duration = 750;
         let isLastFlip = false;
 
         this.clock.setTimeout(flipIt, duration);
 
         function flipIt() {
-            // In order to advance cards the app needs to determine card position
+            /* In order to advance cards the app needs to determine card position
+               - Top Card is the card showing the Words
+               - Bottom Card is the card showing the car image
+               - Next Card is the card in queue to show the car image
+            */
             let topCard = {}, bottomCard = {}, nextCard = {};
 
             let cards = [{
@@ -252,7 +251,6 @@ class App extends DomView {
             }];
 
             cards.forEach(function(card) {
-                //The top card has 180 degree rotation
                 if(card.order === 1) {
                     topCard = card;
                 } else if(card.order === 2) {
@@ -262,7 +260,7 @@ class App extends DomView {
                 }
             });
 
-            /*_this.clock.setTimeout(function() {
+            _this.clock.setTimeout(function() {
                 _this.shadowTop.opacity.set(.33, {
                     duration
                 });
@@ -276,47 +274,44 @@ class App extends DomView {
                         _this.shadowBottom.opacity.set(.33);
                     }
                 }, duration / 2);
-            });*/
+            });
 
             // Flip bottomCard to top
             bottomCard.view.rotation.setX((180 * Math.PI) / 180, {
                 duration,
                 curve: Curves.linear
             }, function() {
-                //On the last card we just want to flip the card, NOT advance or recurse flipIt
-                if(!isLastFlip) {
-                    //_this.shadowTop.opacity.set(0);
-                    nextCard.view.advance(_this.baseZPos.bottom);
-                    topCard.view.advance(_this.baseZPos.next, true);
-                    bottomCard.view.advance(_this.baseZPos.top);
-
-                    _this.currentImage++;
-                    topCard.car.updateImage(_this.currentImage);
-                    //debugger;
-
-                    if (Phrase.getCurrentIndex() < 12) {
-                        topCard.title.updatePhrase(Phrase.getCurrentPhrase());
-                    } else {
-                        topCard.title.node.hide();
-
-                        if(!_this.timelineInitialized) {
-                            _this.initTimeline();
-                        }
-                    }
-
-                    if (duration > 25) {
-                        //duration = duration * .80;
-                    }
-
-                    if (_this.currentImage === 35) {
-                        isLastFlip = true;
-                    }
-
-                    _this.clock.setTimeout(flipIt, duration + 100);
-                } else {
-                     /*_this.shadowBottom.node.hide();
-                     _this.shadowTop.node.hide();*/
+                //On the last card, after the flip we do NOT want to advance the cards or recurse flipIt()
+                if(isLastFlip) {
+                    _this.shadowBottom.node.hide();
+                    _this.shadowTop.node.hide();
+                    return;
                 }
+debugger;
+                _this.shadowTop.opacity.set(0);
+
+                nextCard.view.advance(_this.baseZPos.bottom);
+                topCard.view.advance(_this.baseZPos.next, true);
+                bottomCard.view.advance(_this.baseZPos.top);
+
+                _this.currentImage++;
+                topCard.car.updateImage(_this.currentImage);
+
+                if (Phrase.getCurrentIndex() < 12) {
+                    topCard.title.updatePhrase(Phrase.getCurrentPhrase());
+                } else {
+                    topCard.title.node.hide();
+                    _this.shadowTop.node.hide(); //TODO Not sure if I like this or not
+
+                    if(!_this.timelineInitialized) {
+                        //_this.initTimeline();
+                    }
+                }
+
+                //if (duration > 25) { duration = duration * .8; }
+                if (_this.currentImage === 35) { isLastFlip = true; }
+
+                _this.clock.setTimeout(flipIt, duration);
             });
         }
     }
@@ -608,7 +603,6 @@ class App extends DomView {
                 [this.time.closingText.a[2], 0]
             ]
         });
-
 
         this.timeline.registerComponent({
             component: this.closingText1.position,
