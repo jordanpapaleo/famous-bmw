@@ -17,12 +17,11 @@ export class View {
         this.setProperties();
     }
 
-    setProperties() {  }
+    setProperties() {}
 
     emit(evt, payload) {
         this.node.emit(evt, payload);
     }
-
 
     // Takes 1 - 3 arrays
     // ex: this.setSize(['relative', 1], ['relative', .5]);

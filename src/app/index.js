@@ -1,8 +1,6 @@
 import {core, transitions} from 'famous';
 import {DomView} from '../shared/DomView';
-import {GLView} from '../shared/GLView';
 import {Timeline} from '../shared/Timeline';
-//import {Timeline} from 'famous-creative/Timeline';
 import {Car} from './Car';
 import {Title} from './Title';
 import {FlipCard} from './FlipCard';
@@ -89,7 +87,7 @@ class App extends DomView {
     flipCardFactory(config) {
         let flipCard = new FlipCard({
             model: config.model,
-            node: this.node.addChild(),
+            node: this.node.addChild()
         });
 
         this['car' + config.model.alphaId] =  new Car({
@@ -309,7 +307,9 @@ debugger;
                 }
 
                 //if (duration > 25) { duration = duration * .8; }
-                if (_this.currentImage === 35) { isLastFlip = true; }
+                if (_this.currentImage === 35) {
+                    isLastFlip = true;
+                }
 
                 _this.clock.setTimeout(flipIt, duration);
             });

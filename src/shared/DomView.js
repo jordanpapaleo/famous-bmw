@@ -21,11 +21,11 @@ export class DomView extends View {
         this.render();
     }
 
-    preRender() { }
+    preRender() {}
 
-    render() { }
+    render() {}
 
-    postRender() { }
+    postRender() {}
 
     on(events, cb) {
         if(!this.eventHandler) {
