@@ -1,23 +1,25 @@
-import {core, transitions} from 'famous';
-import {DomView} from '../shared/DomView';
-import {Timeline} from '../shared/Timeline';
-import {Car} from './Car';
-import {Title} from './Title';
+import View       from 'famous-creative/display/View';
+import Timeline   from 'famous-creative/animation/Timeline';
+import {Car}      from './Car';
+import {Title}    from './Title';
 import {FlipCard} from './FlipCard';
-import Phrase from './PhraseService';
+import Phrase     from './PhraseService';
 
-const Curves   = transitions.Curves;
-const Famous   = core.Famous;
+const GestureHandler = FamousPlatform.components.GestureHandler;
+const Curves         = FamousPlatform.transitions.Curves;
 
-class App extends DomView {
+class App extends View {
     constructor(options) {
         super(options);
 
-        this.clock = Famous.getClock();
+        this.setMountPoint(.5, .5);
+        this.setAlign(.5, .5);
+        this.setSizeMode(1, 1);
+        this.setAbsoluteSize(420, 768);
 
+        this.clock = Famous.getClock();
         this.currentImage = 0;
         this.timelineInitialized = false;
-
         this.baseZPos = {
             top: 99,
             bottom: 101,
@@ -25,24 +27,22 @@ class App extends DomView {
             shadow: 100
         };
 
+        this.render();
+        this.initFlipBook();
+    }
+
+    render() {
+        this.createDOMElement({
+            properties: {
+                'border': '1px solid #000000',
+                'overflow': 'hidden'
+            }
+        });
+
         this.renderFlipCards();
         this.renderLogo();
         this.renderClosingText();
         this.renderShadows();
-        this.initFlipBook();
-    }
-
-    setProperties() {
-        this.mountPoint.set(.5, .5);
-        this.align.set(.5, .5);
-        this.setSize(['absolute', 420], ['absolute', 768]);
-    }
-
-    render() {
-        this.setStyle({
-            'border': '1px solid #000000',
-            'overflow': 'hidden'
-        });
     }
 
     renderFlipCards() {
@@ -57,7 +57,7 @@ class App extends DomView {
         });
 
         // Flip the card to the top position
-        this.flipCardA.rotation.setX((180 * Math.PI) / 180);
+        this.flipCardA.setRotationX((180 * Math.PI) / 180);
 
         this.flipCardB = this.flipCardFactory({
             model: {
@@ -112,19 +112,21 @@ class App extends DomView {
     }
 
     renderLogo() {
-        this.logo = new DomView({
-            node: this.node.addChild(),
-            model: {}
-        });
-        this.logo.opacity.set(0);
+        this.logo = new View(this.node.addChild());
+        this.logo.setOpacity(0);
+        this.logo.setSizeMode(1, 1);
+        this.logo.setAbsoluteSize(225, 225);
+        this.logo.setPositionZ(200);
+        this.logo.setAlign(.5, 0);
+        this.logo.setMountPoint(.5, 0);
+        this.logo.setOrigin(.5, .5);
+        this.logo.setPositionY(75);
 
-        this.logo.setSize(['absolute', 225], ['absolute', 225]);
-        this.logo.position.setZ(200);
-        this.logo.setStyle({'z-index': 200});
-        this.logo.align.set(.5, 0);
-        this.logo.mountPoint.set(.5, 0);
-        this.logo.origin.set(.5, .5);
-        this.logo.position.setY(75);
+        this.createDOMElement({
+            properties: {
+                'z-index': 200
+            }
+        });
 
         this.logoCircles = this.logoImageFactory([4, 5, 6, 7]);
         this.logoLetters = this.logoImageFactory([8, 9, 10]);
@@ -132,19 +134,23 @@ class App extends DomView {
     }
 
     logoImageFactory(imageNumbers) {
-        const _this = this;
         let imageViews = [];
 
         imageNumbers.forEach(function(imageNumber) {
-            let image = new DomView({
-                tagName: 'img',
-                node: _this.logo.node.addChild(),
+            let image = new View({
+                node: this.logo.node.addChild(),
                 model: {
                     imageNumber
                 }
+            }.bind(this));
+
+            image.createDOMElement({
+                tagName: 'img',
+                attributes: {
+                    'src': `assets/svg/logo/${imageNumber}.svg`
+                }
             });
 
-            image.el.setAttribute('src', 'assets/svg/logo/' + imageNumber + '.svg');
             imageViews.push(image);
         });
 
@@ -160,66 +166,206 @@ class App extends DomView {
         };
 
         //CLOSING TEXT 1
-        this.closingText1 = new DomView({
+        this.closingText1 = new View(this.node.addChild());
+        this.closingText1.setOpacity(0);
+        this.closingText1.setPositionY(535);
+
+        this.closingText1.createDOMElement({
             tagName: 'div',
-            node: this.node.addChild(),
             styles: textStyles,
             content: 'SEE HOW WE BROUGHT<br>TOMMORROW TO TODAY'
         });
-        this.closingText1.position.setY(535);
-        this.closingText1.opacity.set(0);
 
         //CLOSING TEXT 2
-        this.closingText2 = new DomView({
+        this.closingText2 = new View(this.node.addChild());
+        this.closingText2.setOpacity(0);
+        this.closingText2.setPositionY(600);
+
+        this.closingText2.createDOMElement({
             tagName: 'div',
-            node: this.node.addChild(),
             styles: textStyles,
             content: 'HELLO FUTURE<br><strong>The all new electric BMW i3</strong>'
         });
-        this.closingText2.position.setY(600);
-        this.closingText2.opacity.set(0);
     }
 
     renderShadows() {
         //SHADOW TOP
-        this.shadowTop = new DomView({
+        this.shadowTop = new View(this.node.addChild());
+        this.shadowTop.setMountPoint(0, 0);
+        this.shadowTop.setAlign(0, 0);
+        this.shadowTop.setOpacity(0);
+        this.shadowTop.setSizeMode(0, 0);
+        this.shadowTop.setPositionalSize(1, .5);
+        this.shadowTop.setPositionZ(this.baseZPos.shadow);
+
+        this.shadowTop.createDOMElement({
             tagName: 'div',
-            node: this.node.addChild(),
-            styles: {
+            properties: {
                 'z-index': this.baseZPos.shadow,
                 'background-color': '#000000',
                 'backface-visibility': 'visible'
-            }
+            },
+            classes: ['shadow-top']
         });
-        this.shadowTop.mountPoint.set(0, 0);
-        this.shadowTop.align.set(0, 0);
-        this.shadowTop.opacity.set(0);
-        this.shadowTop.setSize(['relative', 1], ['relative', .5]);
-        this.shadowTop.position.setZ(this.baseZPos.shadow);
-        this.shadowTop.el.addClass('shadow-top');
 
         //SHADOW BOTTOM
-        this.shadowBottom = new DomView({
+        this.shadowBottom = new View(this.node.addChild());
+        this.shadowBottom.setMountPoint(0, 0);
+        this.shadowBottom.setAlign(0, .5);
+        this.shadowBottom.setOpacity(.33);
+        this.shadowTop.setSizeMode(0, 0);
+        this.shadowTop.setPositionalSize(1, .5);
+        this.shadowBottom.setPositionZ(this.baseZPos.shadow);
+
+        this.shadowBottom.createDOMElement({
             tagName: 'div',
-            node: this.node.addChild(),
-            styles: {
+            properties: {
                 'z-index': this.baseZPos.shadow,
                 'background-color': '#000000',
                 'backface-visibility': 'visible'
-            }
+            },
+            classes: ['shadow-bottom']
         });
-        this.shadowBottom.mountPoint.set(0, 0);
-        this.shadowBottom.align.set(0, .5);
-        this.shadowBottom.opacity.set(.33);
-        this.shadowBottom.el.addClass('shadow-bottom');
-        this.shadowBottom.setSize(['relative', 1], ['relative', .5]);
-        this.shadowBottom.position.setZ(this.baseZPos.shadow);
+    }
+
+    /*
+    * Sort Cards to determine their current position
+    *   -
+    * Flip Bottom Card to the top, hiding the Top Card, revealing the Next Card
+    *   - Fade bottom shadow out at 1/2 the animation duration
+    *   - Fade top shadow in at 1/2 the animation duration
+    *   - Set top shadow opacity to 0
+    *   CARDS HAVE MOVED
+    * Advance all cards to their next position
+    *   - Next Card needs to become the Bottom Card
+    *   - Top Card needs to become the Next Card
+    *       - Update car image
+    *       - Update phrase
+    *   - Bottom Card needs to become the Top Card
+    * */
+
+    //TODO  Do some sort of math to control the duration of the timeline
+    // so it does not finish early when timings are adjusted in the flip.
+
+    initFlipBook2() {
+        const _this = this;
+        let duration = 750;
+        let isLastFlip = false;
+        let isTitleComplete = false;
+
+        const cards = [{
+            view: _this.flipCardA,
+            car: _this.carA,
+            title: _this.titleA
+        }, {
+            view: _this.flipCardB,
+            car: _this.carB,
+            title: _this.titleB
+        }, {
+            view: _this.flipCardC,
+            car: _this.carC,
+            title: _this.titleC
+        }];
+
+        this.clock.setTimeout(startCardSequence, duration);
+
+        function startCardSequence() {
+            let topCard = {}, bottomCard = {}, nextCard = {};
+
+            cards.forEach(function(card) {
+                switch(card.view.getOrder()) {
+                    case 1:
+                        topCard = card;
+                        break;
+                    case 2:
+                        bottomCard = card;
+                        break;
+                    case 3:
+                        nextCard = card;
+                        break;
+                }
+            });
+
+            applyShadows();
+            flipCard(topCard, bottomCard, nextCard);
+
+            //Timeout to allow for the card to flip
+            _this.clock.setTimeout(function() {
+                if (duration > 50) {
+                    duration = duration * .8;
+                }
+
+                if(!_this.timelineInitialized && isTitleComplete) {
+                    _this.registerTimelinePaths();
+                }
+
+                if (_this.currentImage === 35) {
+                    isLastFlip = true;
+                }
+
+                _this.clock.setTimeout(startCardSequence, duration);
+            }, duration);
+        }
+
+        function flipCard(topCard, bottomCard, nextCard) {
+            bottomCard.view.setRotationX((180 * Math.PI) / 180, {
+                duration,
+                curve: Curves.linear
+            }, function() {
+                nextCard.view.advance(_this.baseZPos.bottom);
+                topCard.view.advance(_this.baseZPos.next);
+                bottomCard.view.advance(_this.baseZPos.top);
+
+                _this.currentImage++;
+                updateNextCard(topCard);
+            });
+        }
+
+        function applyShadows() {
+            if(!isTitleComplete) {
+                _this.shadowTop.node.show();
+                _this.shadowBottom.node.show();
+            }
+
+            _this.clock.setTimeout(function() {
+                _this.shadowTop.setOpacity(.33, {
+                    duration
+                });
+            }, duration / 2);
+
+            _this.shadowBottom.setOpacity(0, {
+                duration: duration / 2
+            }, function() {
+                _this.clock.setTimeout(function() {
+                    if(!isLastFlip) {
+                        _this.shadowBottom.setOpacity(.33);
+                    }
+                }, duration / 2);
+            });
+
+            if(isLastFlip) {
+                _this.shadowBottom.node.hide();
+                _this.shadowTop.node.hide();
+            }
+        }
+
+        function updateNextCard(card) {
+            card.node.rotation.setX(0);
+            card.car.updateImage(_this.currentImage);
+
+            if (Phrase.getCurrentIndex() < 12) {
+                card.title.updatePhrase(Phrase.getCurrentPhrase());
+            } else {
+                isTitleComplete = true;
+            }
+        }
     }
 
     initFlipBook() {
         const _this = this;
         let duration = 750;
         let isLastFlip = false;
+        let isBlar = false;
 
         this.clock.setTimeout(flipIt, duration);
 
@@ -258,18 +404,23 @@ class App extends DomView {
                 }
             });
 
+            if(!isBlar) {
+                _this.shadowTop.node.show();
+                _this.shadowBottom.node.show();
+            }
+
             _this.clock.setTimeout(function() {
-                _this.shadowTop.opacity.set(.33, {
+                _this.shadowTop.setOpacity(.33, {
                     duration
                 });
             }, duration / 2);
 
-            _this.shadowBottom.opacity.set(0, {
+            _this.shadowBottom.setOpacity(0, {
                 duration: duration / 2
             }, function() {
                 _this.clock.setTimeout(function() {
                     if(!isLastFlip) {
-                        _this.shadowBottom.opacity.set(.33);
+                        _this.shadowBottom.setOpacity(.33);
                     }
                 }, duration / 2);
             });
@@ -285,8 +436,10 @@ class App extends DomView {
                     _this.shadowTop.node.hide();
                     return;
                 }
-debugger;
-                _this.shadowTop.opacity.set(0);
+//debugger;
+                _this.shadowTop.node.hide();
+                _this.shadowBottom.node.hide();
+                _this.shadowTop.setOpacity(0);
 
                 nextCard.view.advance(_this.baseZPos.bottom);
                 topCard.view.advance(_this.baseZPos.next, true);
@@ -299,14 +452,18 @@ debugger;
                     topCard.title.updatePhrase(Phrase.getCurrentPhrase());
                 } else {
                     topCard.title.node.hide();
+                    _this.shadowTop.setOpacity(0);
                     _this.shadowTop.node.hide(); //TODO Not sure if I like this or not
 
                     if(!_this.timelineInitialized) {
-                        //_this.initTimeline();
+                        _this.registerTimelinePaths();
                     }
                 }
 
-                //if (duration > 25) { duration = duration * .8; }
+                if (duration > 25) {
+                    duration = duration * .8;
+                }
+
                 if (_this.currentImage === 35) {
                     isLastFlip = true;
                 }
@@ -316,7 +473,7 @@ debugger;
         }
     }
 
-    initTimeline() {
+    registerTimelinePaths() {
         this.timelineInitialized = true;
         this.timeline = new Timeline({ timescale: 1 });
 
@@ -405,8 +562,10 @@ debugger;
 
             let endTime = startTime + _this.time.quad.duration;
 
-            _this.timeline.registerComponent({
-                component: quadrant.position,
+            _this.timeline.registerPath({
+                handler: (val) => {
+                    quadrant.setPosition(...val);
+                },
                 path: [
                     [0, [x, y]],
                     [startTime, [x, y]],
@@ -484,13 +643,17 @@ debugger;
                     break;
             }
 
-            _this.timeline.registerComponent({
-                component: circle.scale,
+            _this.timeline.registerPath({
+                handler: (val) => {
+                    circle.setScale(...val);
+                },
                 path: scale
             });
 
-            _this.timeline.registerComponent({
-                component: circle.opacity,
+            _this.timeline.registerPath({
+                handler: (val) => {
+                    circle.setOpacity(...val);
+                },
                 path: opacity
             });
         });
@@ -528,8 +691,10 @@ debugger;
                     break;
             }
 
-            _this.timeline.registerComponent({
-                component: letter.opacity,
+            _this.timeline.registerPath({
+                handler: (val) => {
+                    letter.setOpacity(...val);
+                },
                 path: opacity
             });
         });
@@ -538,8 +703,10 @@ debugger;
     registerCar() {
         const _this = this;
 
-        this.timeline.registerComponent({
-            component: this.carA.position,
+        this.timeline.registerPath({
+            handler: (val) => {
+                this.carA.setPosition(...val);
+            },
             path: [
                 [this.time.start, [0, 0]],
                 [this.time.car.a[0], [0, 0]],
@@ -549,23 +716,42 @@ debugger;
             ]
         });
 
-        this.timeline.registerCallback(this.time.car.a[0], 1, function() {
-            //FLip card A is the view that holds the animating car
-            _this.flipCardA.position.setZ(102);
-            _this.flipCardA.setStyle({
-                'z-index': _this.baseZPos.bottom + 1
-            });
+        this.timeline.registerPath({
+            handler: (time) => {
+                if(time >= this.time.car.a[0]) {
+                    //Flip card A is the view that holds the animating car
+                    this.flipCardA.setPositionZ(102);
+                    this.flipCardA.setDOMProperties({
+                        'z-index': this.baseZPos.bottom + 1
+                    });
+                }
+            },
+            path: [
+                [0, 0],
+                [this.time.end, this.time.end]
+            ]
         });
 
-        this.timeline.registerCallback(this.time.car.b[0], 1, function() {
-            _this.carA.updateImage('orange_mirrored');
-            _this.carA.setSize(['absolute', 550], ['absolute', 367]);
+        this.timeline.registerPath({
+            handler: (time) => {
+                if(time >= this.time.car.b[0]) {
+                    this.carA.updateImage('orange_mirrored');
+                    this.carA.setSizeMode(1, 1);
+                    this.carA.setAbsolutePosition(550, 367);
+                }
+            },
+            path: [
+                [0, 0],
+                [this.time.end, this.time.end]
+            ]
         });
     }
 
     registerLogo() {
-        this.timeline.registerComponent({
-            component: this.logo.opacity,
+        this.timeline.registerPath({
+            handler: (val) => {
+                this.logo.setOpacity(...val);
+            },
             path: [
                 [this.time.start, 0],
                 [this.time.quad.a - 1, 0],
@@ -573,8 +759,10 @@ debugger;
             ]
         });
 
-        this.timeline.registerComponent({
-            component: this.logo.scale,
+        this.timeline.registerPath({
+            handler: (val) => {
+                this.logo.setScale(...val);
+            },
             path: [
                 [this.time.start, [1, 1, 1]],
                 [this.time.logo.a[0], [1, 1, 1]],
@@ -583,8 +771,10 @@ debugger;
             ]
         });
 
-        this.timeline.registerComponent({
-            component: this.logo.position,
+        this.timeline.registerPath({
+            handler: (val) => {
+                this.logo.setPosition(...val);
+            },
             path: [
                 [this.time.start, [0, 75, 0]],
                 [this.time.logo.a[0], [0, 75, 0]],
@@ -594,8 +784,10 @@ debugger;
     }
 
     registerClosingText() {
-        this.timeline.registerComponent({
-            component: this.closingText1.opacity,
+        this.timeline.registerPath({
+            handler: (val) => {
+                this.closingText1.setOpacity(...val);
+            },
             path: [
                 [this.time.start, 0],
                 [this.time.closingText.a[0], 0],
@@ -604,17 +796,19 @@ debugger;
             ]
         });
 
-        this.timeline.registerComponent({
-            component: this.closingText1.position,
-            path: [
-                [this.time.start, [0, this.closingText1.position.getY()]],
+        this.timeline.registerPath({
+            handler: (val) => {
+                this.closingText1.setPosition(...val)
+            },
+            path: [[this.time.start, [0, this.closingText1.position.getY()]],
                 [this.time.closingText.a[1], [0, this.closingText1.position.getY()]],
-                [this.time.closingText.a[2], [0, this.closingText1.position.getY() + 100]]
-            ]
+                [this.time.closingText.a[2], [0, this.closingText1.position.getY() + 100]]]
         });
 
-        this.timeline.registerComponent({
-            component: this.closingText2.opacity,
+        this.timeline.registerPath({
+            handler: (val) => {
+                this.closingText2.setOpacity(...val);
+            },
             path: [
                 [this.time.start, 0],
                 [this.time.closingText.b[0], 0],
@@ -625,8 +819,10 @@ debugger;
 }
 
 const root = core.Famous.createContext('body');
+let camera = new FamousPlatform.components.Camera(rootNode);
+camera.setDepth(20000);
 
-window.bmw = new App({
+window.app = new App({
     node: root.addChild(),
     model: {}
 });

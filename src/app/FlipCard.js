@@ -1,35 +1,30 @@
-import {DomView} from '../shared/DomView';
+import View     from 'famous-creative/display/View';
 
-export class FlipCard extends DomView {
-    setProperties() {
-        this.mountPoint.set(0, 0);
-        this.align.set(0, .5);
-        this.origin.set(0, 0);
-        this.setSize(['relative', 1], ['relative', .5]);
-        this.position.setZ(this.model.zPos);
-    }
+export class FlipCard extends View {
+    constructor(node, options) {
+        super(node, options);
 
-    render() {
-        this.el.addClass('card-' + this.model.alphaId);
-        this.setStyle({
-            'z-index': this.model.zPos,
-            'background-color': '#FFFFFF'
+        this.setMountPoint(0, 0);
+        this.setAlign(0, .5);
+        this.setOrigin(0, 0);
+        this.setSizeMode(0, 0);
+        this.setSizeProportional(1, .5);
+        this.setPositionZ(this.model.zPos);
+
+        this.createDOMElement({
+            classes: [`card-${this.model.alphaId}`],
+            properties: {
+                'z-index': this.model.zPos,
+                'background-color': '#FFFFFF'
+            }
         });
     }
 
-    advance(zPos, reset) {
-        console.log(this.model.alphaId, this);
-
-        if(reset) {
-            this.node.hide();
-            this.rotation.setX(0);
-            this.node.show();
-        }
-
+    advance(zPos) {
         this.model.zPos = zPos;
-        this.position.setZ(zPos);
+        this.setPositionZ(zPos);
 
-        this.setStyle({
+        this.setDOMProperties({
             'z-index': zPos
         });
 
