@@ -1,7 +1,6 @@
 import View             from 'famous-creative/display/View';
 import Image            from './ImageService';
 
-
 export class Car extends View {
     constructor(node, options) {
         super(node, options);

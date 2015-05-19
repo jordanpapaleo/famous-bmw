@@ -36,7 +36,9 @@ class App extends View {
         this.renderFlipCards();
         //this.renderLogo();
         this.renderClosingText();
-        this.renderShadows();
+
+        //TODO put back when shadow are back on
+        //this.renderShadows();
 
         this.initFlipBook();
     }
@@ -211,11 +213,8 @@ class App extends View {
     *   - Bottom Card needs to become the Top Card
     * */
 
-    //TODO  Do some sort of math to control the duration of the time line
-    // so it does not finish early when timings are adjusted in the flip.
-
     initFlipBook() {
-        let duration = 2000;
+        let duration = 1000;
         let isLastFlip = false;
         let isTitleComplete = false;
 
@@ -228,7 +227,7 @@ class App extends View {
 
             // Determine where each card based on its order property
             cards.forEach(function(card) {
-                switch(card.getOrder()) {
+                switch(card.order) {
                     case 1:
                         topCard = card;
                         break;
@@ -245,26 +244,30 @@ class App extends View {
             let shadowDuration = duration / 2;
 
             // Fade out bottom shadow for the first half of the flip animation
-            this.shadowBottom.setOpacity(0, {
+            //TODO put back when shadow are back on
+            /*this.shadowBottom.setOpacity(0, {
                 duration: shadowDuration
             }, () => {
                 // Fade in top shadow for the second half of the flip animation
                 this.shadowTop.setOpacity(.33, {
                     duration: shadowDuration
                 });
-            });
+            });*/
 
             bottomCard.setRotationX((180 * Math.PI) / 180, {
                 duration
             }, () => {
-                this.shadowTop.setOpacity(0);
-                nextCard.advance(this.baseZPos.bottom);
-                topCard.advance(this.baseZPos.next, true);
-                bottomCard.advance(this.baseZPos.top);
-                this.shadowBottom.setOpacity(.33);
+                //TODO put back when shadow are back on
+                //this.shadowTop.setOpacity(0);
+                nextCard.advance();
+                topCard.advance();
+                bottomCard.advance();
+
+                //TODO put back when shadow are back on
+                //this.shadowBottom.setOpacity(.33);
 
                 //Speed up the flip
-                if (duration > 100) {
+                if (duration > 25) {
                     //duration = duration * .8;
                 }
 
@@ -279,8 +282,6 @@ class App extends View {
                 } else {
                     this.clock.setTimeout(startCardSequence.bind(this), duration);
                 }
-
-                debugger;
             });
         }
     }
@@ -513,8 +514,6 @@ class App extends View {
     }
 
     registerCar() {
-        const _this = this;
-
         this.timeline.registerPath({
             handler: (val) => {
                 this.carA.setPosition(...val);

@@ -28,6 +28,14 @@ export class FlipCard extends View {
         this.renderTitle();
     }
 
+    get order() {
+        return this.model.order;
+    }
+
+    set order(i) {
+        this.model.order = i;
+    }
+
     renderCar() {
         this.car =  new Car(this.addChild(), {
             model: {
@@ -46,34 +54,33 @@ export class FlipCard extends View {
         });
     }
 
-    advance(zPos, needsUpdate) {
+    advance() {
+        let zPos;
+
+        switch(this.order) {
+            case 1: // Was at top, advance to next
+                zPos = 99;
+                this.setRotationX(0);
+                this.car.advanceImage();
+                this.title.updatePhrase();
+                this.order = 3;
+                break;
+            case 2: // Was at bottom, advance to top
+                zPos = 99;
+                this.order = 1;
+                break;
+            case 3:// Was at next, advance to bottom
+                zPos = 101;
+                this.order = 2;
+                break;
+            default:
+
+        }
+
         this.model.zPos = zPos;
         this.setPositionZ(zPos);
         this.setDOMProperties({
             'z-index': zPos
         });
-
-        if(needsUpdate) {
-            this.setRotationX(0);
-            this.car.advanceImage();
-            this.title.updatePhrase();
-        }
-
-        switch(this.model.order) {
-            case 1:
-                this.model.order = 3;
-                break;
-            case 2:
-                this.model.order = 1;
-                break;
-            case 3:
-                this.model.order = 2;
-                break;
-            default:
-        }
-    }
-
-    getOrder() {
-        return this.model.order;
     }
 }
