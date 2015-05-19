@@ -38,11 +38,11 @@
     "uglifyify": "^3.0.1",
     "watchify": "^3.2.1"
   },
-  "author": "Jordan Papaleo",
+  "author": "Famous Creative",
   "license": "All rights reserved",
   "dependencies": {
     "brfs": "^1.1.1",
-    "famous-creative": "git+ssh://git@github.famo.us:creative/famous-creative#0.2.7",
+    "famous-creative": "git+ssh://git@github.famo.us:creative/famous-creative#0.3.3",
     "less": "^2.5.0"
   }
 }

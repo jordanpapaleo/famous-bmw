@@ -1,15 +1,20 @@
-import View     from 'famous-creative/display/View';
+import View             from 'famous-creative/display/View';
+import {Car}            from './Car';
+import {Title}          from './Title';
 
 export class FlipCard extends View {
     constructor(node, options) {
         super(node, options);
 
+        this.model = options.model || {};
+
         this.setMountPoint(0, 0);
         this.setAlign(0, .5);
         this.setOrigin(0, 0);
-        this.setSizeMode(0, 0);
-        this.setSizeProportional(1, .5);
         this.setPositionZ(this.model.zPos);
+
+        this.setSizeModeRelative();
+        this.setProportionalSize(1, .5);
 
         this.createDOMElement({
             classes: [`card-${this.model.alphaId}`],
@@ -18,15 +23,41 @@ export class FlipCard extends View {
                 'background-color': '#FFFFFF'
             }
         });
+
+        this.renderCar();
+        this.renderTitle();
     }
 
-    advance(zPos) {
+    renderCar() {
+        this.car =  new Car(this.addChild(), {
+            model: {
+                alphaId: this.model.alphaId,
+                currentImage: this.model.image
+            }
+        });
+    }
+
+    renderTitle() {
+        this.title = new Title(this.addChild(), {
+            model: {
+                alphaId: this.model.alphaId,
+                text: this.model.letter
+            }
+        });
+    }
+
+    advance(zPos, needsUpdate) {
         this.model.zPos = zPos;
         this.setPositionZ(zPos);
-
         this.setDOMProperties({
             'z-index': zPos
         });
+
+        if(needsUpdate) {
+            this.setRotationX(0);
+            this.car.advanceImage();
+            this.title.updatePhrase();
+        }
 
         switch(this.model.order) {
             case 1:

@@ -1,17 +1,23 @@
-import View     from 'famous-creative/display/View';
+import View             from 'famous-creative/display/View';
+import Image            from './ImageService';
+
 
 export class Car extends View {
     constructor(node, options) {
         super(node, options);
 
-        this.setMountPoint(0, 1);
+        this.model = options.model || {};
+
         this.setAlign(0, 1);
+        this.setMountPoint(0, 1);
+        this.setPositionZ(1);
+
         this.setSizeMode(0, 1);
         this.setProportionalSize(1, null);
         this.setAbsoluteSize(null, 280);
-        this.setPositionZ(1);
 
         this.createDOMElement({
+            tagName: 'img',
             attributes: {
                 'src': `assets/images/car/${this.model.currentImage}.jpg`
             },
@@ -22,9 +28,9 @@ export class Car extends View {
         });
     }
 
-    updateImage(currentImage) {
+    advanceImage() {
         this.setDOMAttributes({
-            'src': `assets/images/car/${currentImage}'.jpg`
+            'src': `assets/images/car/${Image.getNext()}.jpg`
         });
     }
 }

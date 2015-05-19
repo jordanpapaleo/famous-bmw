@@ -1,13 +1,17 @@
-import View     from 'famous-creative/display/View';
+import View             from 'famous-creative/display/View';
+import Phrase           from './PhraseService';
 
 export class Title extends View {
     constructor(node, options) {
         super(node, options);
 
-        this.setMountPoint(.5, .5);
+        this.model = options.model || {};
+
         this.setAlign(.5, .5);
+        this.setMountPoint(.5, .5);
         this.setOrigin(.5, .5);
-        this.setSizeMode(0, 0);
+
+        this.setSizeModeRelative();
         this.setProportionalSize(1, 1);
 
         // Flip the card backwards to be ready for the
@@ -16,6 +20,7 @@ export class Title extends View {
         this.setPositionZ(-1);
 
         this.createDOMElement({
+            tagName: 'h1',
             classes: ['title-text'],
             content: this.model.text,
             properties: {
@@ -32,7 +37,7 @@ export class Title extends View {
         });
     }
 
-    updatePhrase(titleString) {
-        this.setDOMContent(titleString);
+    updatePhrase() {
+        this.setDOMContent(Phrase.getCurrentPhrase());
     }
 }
