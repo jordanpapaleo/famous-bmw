@@ -3,9 +3,9 @@ import Image            from './ImageService';
 
 export class Car extends View {
     constructor(node, options) {
-        super(node, options);
+        super(node);
 
-        this.model = options.model || {};
+        this.model = options;
 
         this.setAlign(0, 1);
         this.setMountPoint(0, 1);
@@ -22,7 +22,7 @@ export class Car extends View {
             },
             classes: ['car-image'],
             properties: {
-                'backface-visibility': 'hidden'
+                'backface-visibility': 'hidden',
             }
         });
     }

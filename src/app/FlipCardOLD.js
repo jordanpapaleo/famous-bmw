@@ -6,10 +6,10 @@ export class FlipCard extends View {
     constructor(node, options) {
         super(node, options);
 
-        this.model = options;
+        this.model = options.model || {};
 
-        this.setAlign(0, .5);
         this.setMountPoint(0, 0);
+        this.setAlign(0, .5);
         this.setOrigin(0, 0);
         this.setPositionZ(this.model.zPos);
 
@@ -19,7 +19,8 @@ export class FlipCard extends View {
         this.createDOMElement({
             classes: [`card-${this.model.alphaId}`],
             properties: {
-                'z-index': this.model.zPos
+                'z-index': this.model.zPos,
+                'background-color': '#FFFFFF'
             }
         });
 
@@ -37,15 +38,19 @@ export class FlipCard extends View {
 
     renderCar() {
         this.car =  new Car(this.addChild(), {
-            alphaId: this.model.alphaId,
-            currentImage: this.model.image
+            model: {
+                alphaId: this.model.alphaId,
+                currentImage: this.model.image
+            }
         });
     }
 
     renderTitle() {
         this.title = new Title(this.addChild(), {
-            alphaId: this.model.alphaId,
-            text: this.model.letter
+            model: {
+                alphaId: this.model.alphaId,
+                text: this.model.letter
+            }
         });
     }
 
@@ -68,6 +73,8 @@ export class FlipCard extends View {
                 zPos = 101;
                 this.order = 2;
                 break;
+            default:
+
         }
 
         this.model.zPos = zPos;

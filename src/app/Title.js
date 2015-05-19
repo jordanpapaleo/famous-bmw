@@ -3,9 +3,9 @@ import Phrase           from './PhraseService';
 
 export class Title extends View {
     constructor(node, options) {
-        super(node, options);
+        super(node);
 
-        this.model = options.model || {};
+        this.model = options;
 
         this.setAlign(.5, .5);
         this.setMountPoint(.5, .5);
@@ -14,8 +14,7 @@ export class Title extends View {
         this.setSizeModeRelative();
         this.setProportionalSize(1, 1);
 
-        // Flip the card backwards to be ready for the
-        // rotation up to the top position
+        // Flip the card backwards to be ready for the rotation up to the top position
         this.setRotation((180 * Math.PI) / 180, 0, 0);
         this.setPositionZ(-1);
 
@@ -25,7 +24,6 @@ export class Title extends View {
             content: this.model.text,
             properties: {
                 'backface-visibility': 'hidden',
-                'background-color': '#FFFFFF',
                 'box-sizing': 'border-box',
                 'font-size': '70px',
                 'font-weight': '300',
