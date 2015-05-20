@@ -1,48 +1,80 @@
-import {DomView} from '../shared/DomView';
+import View             from 'famous-creative/display/View';
+import {Car}            from './Car';
+import {Title}          from './Title';
 
-export class FlipCard extends DomView {
-    setProperties() {
-        this.origin.set(0, 0);
-        this.align.set(0, .5);
+export class FlipCard extends View {
+    constructor(node, options) {
+        super(node, options);
 
-        this.position.setZ(this.model.zPos);
-        this.size.setProportional(1, .5, 1);
-    }
+        this.model = options;
 
-    render() {
-        this.setStyle({
-            'z-index': this.model.zPos,
-            'background-color': '#FFFFFF'
-        });
-    }
+        this.setAlign(0, .5);
+        this.setMountPoint(0, 0);
+        this.setOrigin(0, 0);
+        this.setPositionZ(this.model.zPos);
 
-    advance(n, reset) {
-        if(reset) {
-            this.rotation.setX(0);
-        }
+        this.setSizeModeRelative();
+        this.setProportionalSize(1, .5);
 
-        this.model.zPos = n;
-        this.position.setZ(n);
-
-        this.setStyle({
-            'z-index': this.model.zPos
+        this.createDOMElement({
+            classes: [`card-${this.model.alphaId}`],
+            properties: {
+                'z-index': this.model.zPos,
+                'background-color': 'white'
+            }
         });
 
-        switch(this.model.order) {
-            case 1:
-                this.model.order = 3;
-                break;
-            case 2:
-                this.model.order = 1;
-                break;
-            case 3:
-                this.model.order = 2;
-                break;
-            default:
-        }
+        this.renderCar();
+        this.renderTitle();
     }
 
-    getOrder() {
+    get order() {
         return this.model.order;
+    }
+
+    set order(i) {
+        this.model.order = i;
+    }
+
+    renderCar() {
+        this.car =  new Car(this.addChild(), {
+            alphaId: this.model.alphaId,
+            currentImage: this.model.image
+        });
+    }
+
+    renderTitle() {
+        this.title = new Title(this.addChild(), {
+            alphaId: this.model.alphaId,
+            text: this.model.letter
+        });
+    }
+
+    advance() {
+        let zPos;
+
+        switch(this.order) {
+            case 1: // Was at top, advance to next
+                zPos = 99;
+                this.setRotationX(0);
+                this.car.advanceImage();
+                this.title.updatePhrase();
+                this.order = 3;
+                break;
+            case 2: // Was at bottom, advance to top
+                zPos = 99;
+                this.order = 1;
+                break;
+            case 3:// Was at next, advance to bottom
+                zPos = 101;
+                this.order = 2;
+                break;
+        }
+
+        this.model.zPos = zPos;
+        this.setPositionZ(zPos);
+        this.setDOMProperties({
+            'z-index': zPos
+        });
     }
 }

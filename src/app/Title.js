@@ -1,31 +1,45 @@
-import {DomView} from '../shared/DomView';
-import UI from '../utils/UI';
+import View             from 'famous-creative/display/View';
+import Phrase           from './PhraseService';
 
-export class Title extends DomView {
-    setProperties() {
-        this.mountPoint.set(.5, .5);
-        this.align.set(.5, .5);
-        this.size.setAbsolute(420, 200, 1);
-        this.origin.set(.5, .5);
-        this.rotation.setX((180 * Math.PI) / 180);
-    }
+export class Title extends View {
+    constructor(node, options) {
+        super(node);
 
-    render() {
-        this.el.content(this.model.text);
+        this.model = options;
 
-        UI.setStyle(this, {
-            'text-align': 'center',
-            'backface-visibility': 'hidden',
-            'background-color': '#FFFFFF',
-            'font-size': '70px',
-            'font-weight': '300',
-            'margin': '0',
-            'box-sizing': 'border-box',
-            'text-transform': 'uppercase'
+        this.setAlign(.5, .5);
+        this.setMountPoint(.5, .5);
+        this.setOrigin(.5, .5);
+
+        this.setSizeModeRelative();
+        this.setProportionalSize(1, 1);
+
+        // Flip the card backwards to be ready for the rotation up to the top position
+        this.setRotation((180 * Math.PI) / 180, 0, 0);
+        this.setPositionZ(-1);
+
+        this.createDOMElement({
+            tagName: 'h1',
+            classes: ['title-text'],
+            content: this.model.text,
+            properties: {
+                'backface-visibility': 'hidden',
+                'box-sizing': 'border-box',
+                'font-size': '70px',
+                'font-weight': '300',
+                'margin': '0',
+                'padding-top': '100px',
+                'text-align': 'center',
+                'text-transform': 'uppercase'
+            }
         });
     }
 
-    update(titleString) {
-        this.el.content(titleString);
+    updatePhrase() {
+        if(Phrase.getCurrentIndex() === 12) {
+            this.setOpacity(0);
+        } else {
+            this.setDOMContent(Phrase.getCurrentPhrase());
+        }
     }
 }
