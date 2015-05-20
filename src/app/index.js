@@ -1,24 +1,22 @@
-import {core, transitions} from 'famous';
-import {DomView} from '../shared/DomView';
-import {GLView} from '../shared/GLView';
-import {Timeline} from '../shared/Timeline';
-import {Car} from './Car';
-import {Title} from './Title';
-import {FlipCard} from './FlipCard';
-import Phrase from './PhraseService';
-import UI from '../utils/UI';
+import View             from 'famous-creative/display/View';
+import Timeline         from 'famous-creative/animation/Timeline';
 
-const Curves   = transitions.Curves;
-const Famous   = core.Famous;
+import {FlipCard}       from './FlipCard';
+import Image            from './ImageService';
+import Phrase           from './PhraseService';
 
-class App extends DomView {
+//Famous Components
+const Curves            = FamousPlatform.transitions.Curves;
+const Famous            = FamousPlatform.core.Famous;
+
+class App extends View {
     constructor(options) {
         super(options);
 
-        this.clock = Famous.getClock();
-
-        this.currentImage = 0;
-        this.timelineInitialized = false;
+        this.setMountPoint(.5, .5);
+        this.setAlign(.5, .5);
+        this.setSizeModeAbsolute();
+        this.setAbsoluteSize(420, 768);
 
         this.baseZPos = {
             top: 99,
@@ -27,301 +25,259 @@ class App extends DomView {
             shadow: 100
         };
 
+        this.createDOMElement({
+            properties: {
+                'border': '1px solid #000000',
+                'overflow': 'hidden'
+            }
+        });
+        this.clock = Famous.getClock();
+
         this.renderFlipCards();
-        this.renderLogo();
+        this.renderShadows();
         this.renderClosingText();
-        this.renderShadow();
+        this.renderSky();
+
         this.initFlipBook();
-
-        this.gl = new GLView({
-            node: this.node.addChild()
-        });
-    }
-
-    setProperties() {
-        this.mountPoint.set(.5, .5);
-        this.align.set(.5, .5);
-        this.size.setAbsolute(420, 768);
-    }
-
-    render() {
-        UI.setStyle(this, {
-            'border': '1px solid #000000',
-            'overflow': 'hidden'
-        });
     }
 
     renderFlipCards() {
-        this.flipCardA = this.flipCardFactory({
-            alphaId: 'A',
-            model: {
+        this.flipCards = [];
+        let cardConfigs = [
+            {
+                alphaId: 'A',
                 order: 1,
-                zPos: this.baseZPos.top
-            }
-        });
-
-        // Flip the card to the top position
-        this.flipCardA.rotation.set((180 * Math.PI) / 180);
-
-        this.flipCardB = this.flipCardFactory({
-            alphaId: 'B',
-            model: {
+                zPos: this.baseZPos.top,
+                image: Image.getCurrent(),
+                letter: Phrase.getCurrentPhrase()
+            },
+            {
+                alphaId: 'B',
                 order: 2,
-                zPos: this.baseZPos.bottom
-            }
-        });
-
-        //We need to bump the image between these B and C
-        this.currentImage++;
-
-        this.flipCardC = this.flipCardFactory({
-            alphaId: 'C',
-            model: {
+                zPos: this.baseZPos.bottom,
+                image: Image.getCurrent(),
+                letter: Phrase.getCurrentPhrase()
+            },
+            {
+                alphaId: 'C',
                 order: 3,
-                zPos: this.baseZPos.next
+                zPos: this.baseZPos.next,
+                image: Image.getNext(),
+                letter: Phrase.getCurrentPhrase()
             }
+        ];
+
+        cardConfigs.forEach((config) => {
+            this.flipCards.push(new FlipCard(this.addChild(), config));
         });
+
+        this.flipCards[0].setRotationX((180 * Math.PI) / 180);
     }
 
-    flipCardFactory(config) {
-        let flipCard = new FlipCard({
-            model: config.model,
-            node: this.node.addChild()
+    renderShadows() {
+        const properties = {
+            'z-index': this.baseZPos.shadow,
+            'background-color': '#000000',
+            'backface-visibility': 'visible'
+        };
+
+        //SHADOW TOP
+        this.shadowTop = new View(this.addChild());
+
+        this.shadowTop.setAlign(0, 0);
+        this.shadowTop.setMountPoint(0, 0);
+        this.shadowTop.setOpacity(0);
+
+        this.shadowTop.setSizeModeRelative();
+        this.shadowTop.setProportionalSize(1, .5);
+        //this.shadowTop.setSizeModeAbsolute();
+        //this.shadowTop.setAbsoluteSize(420, 384);
+        this.shadowTop.setPositionZ(this.baseZPos.shadow);
+        this.shadowTop.createDOMElement({
+            properties,
+            tagName: 'div',
+            classes: ['shadow-top']
         });
 
-        flipCard.el.addClass('card-' + config.alphaId);
+        //SHADOW BOTTOM
+        this.shadowBottom = new View(this.addChild());
 
-        this['car' + config.alphaId] =  new Car({
-            node: flipCard.node.addChild(),
-            tagName: 'img',
-            model: {
-                currentImage: this.currentImage
-            }
+        this.shadowBottom.setAlign(0, .5);
+        this.shadowBottom.setMountPoint(0, 0);
+        this.shadowBottom.setOpacity(.33);
+
+        //TODO put this back once the size issue is resolved
+        //this.shadowTop.setSizeModeRelative();
+        //this.shadowTop.setProportionalSize(1, .5);
+        this.shadowBottom.setSizeModeAbsolute();
+        this.shadowBottom.setAbsoluteSize(420, 384);
+
+        this.shadowBottom.setPositionZ(this.baseZPos.shadow);
+
+        this.shadowBottom.createDOMElement({
+            properties,
+            tagName: 'div',
+            classes: ['shadow-bottom']
         });
-
-        this['title' + config.alphaId] = new Title({
-            tagName: 'h1',
-            node: flipCard.node.addChild(),
-            model: {
-                text: Phrase.getCurrentPhrase()
-            }
-        });
-
-        return flipCard;
-    }
-
-    renderLogo() {
-        this.logo = new DomView({
-            node: this.node.addChild(),
-            model: {}
-        });
-
-        this.logo.opacity.set(0);
-        this.logo.size.setAbsolute(225, 225);
-        this.logo.position.setZ(200);
-        this.logo.el.property('z-index', 200);
-        this.logo.align.set(.5, 0);
-        this.logo.mountPoint.set(.5, 0);
-        this.logo.origin.set(.5, .5);
-        this.logo.position.setY(75);
-
-        this.logoCircles = this.logoImageFactory([4, 5, 6, 7]);
-        this.logoLetters = this.logoImageFactory([8, 9, 10]);
-        this.logoQuadrants = this.logoImageFactory([0, 1, 2, 3]);
-    }
-
-    logoImageFactory(imageNumbers) {
-        const _this = this;
-        let imageViews = [];
-
-        imageNumbers.forEach(function(imageNumber) {
-            let image = new DomView({
-                tagName: 'img',
-                node: _this.logo.node.addChild(),
-                model: {
-                    imageNumber
-                }
-            });
-
-            //image.el.attribute('src', 'assets/images/logo/' + imageNumber + '.png');
-            image.el.attribute('src', 'assets/svg/logo/' + imageNumber + '.svg');
-            imageViews.push(image);
-        });
-
-        return imageViews;
     }
 
     renderClosingText() {
-        const textStyles = {
+        const properties = {
             'text-align': 'center',
-            'font-size': '26px',
-            'line-height': '1',
-            'z-index': '200'
+                'font-size': '26px',
+                'line-height': '1',
+                'z-index': '200'
         };
 
-        this.closingText1 = this.textFactory({
-            tagName: '',
-            content: 'SEE HOW WE BROUGHT<br>TOMMORROW TO TODAY',
-            styles: textStyles
+        //CLOSING TEXT 1
+        this.closingText1 = new View(this.addChild());
+        this.closingText1.setOpacity(0);
+        this.closingText1.setPositionY(535);
+        this.closingText1.setPositionZ(200);
+
+        this.closingText1.createDOMElement({
+            properties: {
+                'text-align': 'center',
+                'font-size': '26px',
+                'line-height': '1',
+                'z-index': '200'
+            },
+            tagName: 'div',
+            content: 'SEE HOW WE BROUGHT<br>TOMMORROW TO TODAY'
         });
 
-        this.closingText1.position.setY(535);
-        this.closingText1.opacity.set(0);
+        //CLOSING TEXT 2
+        this.closingText2 = new View(this.addChild());
+        this.closingText2.setOpacity(0);
+        this.closingText2.setPositionY(600);
+        this.closingText2.setPositionZ(200);
 
-        this.closingText2 = this.textFactory({
-            tagName: '',
-            content: 'HELLO FUTURE<br><strong>The all new electric BMW i3</strong>',
-            styles: textStyles
+        this.closingText2.createDOMElement({
+            properties: {
+                'text-align': 'center',
+                'font-size': '26px',
+                'line-height': '1',
+                'z-index': '200',
+                'color': 'rgb(255,255,255)'
+            },
+            tagName: 'div',
+            content: 'HELLO FUTURE<br><strong>The all new electric BMW i3</strong>'
         });
-
-        this.closingText2.position.setY(600);
-        this.closingText2.opacity.set(0);
     }
 
-    textFactory(config) {
-        let text =  new DomView({
-            tagName: config.tagName || '',
-            node: this.node.addChild()
+    renderSky() {
+        this.sky = new View(this.addChild());
+        this.sky.createDOMElement({
+            properties: {
+                'background-color': 'rgb(255, 255, 255)',
+                'z-index': -200
+            },
+            classes: ['background-sky']
         });
 
-        UI.setStyle(text, config.styles);
-        text.el.content(config.content);
-        return text;
-    }
-
-    renderShadow() {
-        this.shadowTop = new DomView({
-            node: this.node.addChild()
-        });
-
-        this.shadowTop.setStyle({
-            'z-index': this.baseZPos.shadow,
-            'background-color': '#000000',
-            'backface-visibility': 'visible'
-        });
-
-        this.shadowTop.position.setZ(this.baseZPos.shadow);
-        this.shadowTop.size.setProportional(1, .5);
-        this.shadowTop.mountPoint.set(0, 1);
-        this.shadowTop.align.set(0, .5);
-        this.shadowTop.opacity.set(0);
-
-        this.shadowBottom = new DomView({
-            node: this.node.addChild()
-        });
-
-        this.shadowBottom.setStyle({
-            'z-index': this.baseZPos.shadow,
-            'background-color': '#000000',
-            'backface-visibility': 'visible'
-        });
-
-        this.shadowBottom.position.setZ(this.baseZPos.shadow);
-        this.shadowBottom.size.setProportional(1, .5);
-        this.shadowBottom.mountPoint.set(0, 0);
-        this.shadowBottom.align.set(0, .5);
-        this.shadowBottom.opacity.set(.33);
+        this.sky.setSizeModeRelative();
+        this.sky.setProportionalSize(1, 1);
+        this.sky.setPositionZ(-200);
     }
 
     initFlipBook() {
-        const _this = this;
-        let duration = 1000; //750
-        let isLastFlip = false;
-
-        this.clock.setTimeout(flipIt, duration);
-
-        function flipIt() {
-            _this.currentImage++;
-
-            // Determine what cards are where
-            let topCard = {}, bottomCard = {}, nextCard = {};
-
-            let cards = [{
-                view: _this.flipCardA,
-                order: _this.flipCardA.getOrder(),
-                car: _this.carA,
-                title: _this.titleA
-            }, {
-                view: _this.flipCardB,
-                order: _this.flipCardB.getOrder(),
-                car: _this.carB,
-                title: _this.titleB
-            }, {
-                view: _this.flipCardC,
-                order: _this.flipCardC.getOrder(),
-                car: _this.carC,
-                title: _this.titleC
-            }];
-
-            cards.forEach(function(card) {
-                //The top card has 180 degree rotation
-                if(card.order === 1) {
-                    topCard = card;
-                } else if(card.order === 2) {
-                    bottomCard = card;
-                } else if(card.order === 3) {
-                    nextCard = card;
-                }
-            });
-
-            _this.clock.setTimeout(function() {
-                _this.shadowTop.opacity.set(.33, {
-                    duration
-                });
-            }, duration / 2);
-
-            _this.shadowBottom.opacity.set(0, {
-                duration: duration / 2
-            }, function() {
-                _this.clock.setTimeout(function() {
-                    if(!isLastFlip) {
-                        _this.shadowBottom.opacity.set(.33);
-                    }
-                }, duration / 2);
-            });
-
-            // Flip bottomCard to top
-            bottomCard.view.rotation.setX((180 * Math.PI) / 180, {
-                duration,
-                curve: Curves.linear
-            }, function() {
-                //On the last card we just want to flip the card, NOT advance or recurse flipIt
-                if(!isLastFlip) {
-                    _this.shadowTop.opacity.set(0);
-
-                    nextCard.view.advance(_this.baseZPos.bottom);
-                    topCard.view.advance(_this.baseZPos.next, true);
-                    bottomCard.view.advance(_this.baseZPos.top);
-                    topCard.car.updateImage(_this.currentImage);
-
-                    if (Phrase.getCurrentIndex() < 12) {
-                        topCard.title.update(Phrase.getCurrentPhrase());
-                    } else {
-                        topCard.title.opacity.set(0);
-
-                        if (!_this.timelineInitialized) {
-                            _this.initTimeline();
-                        }
-                    }
-
-                    if (duration > 25) {
-                        duration = duration * .80;
-                    }
-
-                    if (_this.currentImage === 35) {
-                        isLastFlip = true;
-                    }
-
-                    _this.clock.setTimeout(flipIt, duration);
-                } else {
-                    _this.shadowBottom.opacity.set(0);
-                    _this.shadowTop.opacity.set(0);
-                }
-            });
-        }
+        this.duration = 750;
+        this.clock.setTimeout(this.flipCard.bind(this), 2000);
+        this.flipCount = 0;
+        this.timelineInitialized = false;
     }
 
-    initTimeline() {
+    flipCard() {
+        let topCard, bottomCard, nextCard;
+        let flipDuration = this.duration;
+        this.flipCount++;
+
+        // Determine where each card based on its order property
+        this.flipCards.forEach(function(card) {
+            switch(card.order) {
+                case 1:
+                    topCard = card;
+                    break;
+                case 2:
+                    bottomCard = card;
+                    break;
+                case 3:
+                    nextCard = card;
+                    break;
+            }
+        });
+
+        // This is to get rid of the phantom image seen at high speeds in the flip animation
+        if(this.duration < 50) {
+            flipDuration = 0;
+            this.shadowBottom.hide();
+            this.shadowTop.hide();
+        } else {
+            // Each shadow is only active for half the time of the card flip
+            let shadowDuration = this.duration / 2;
+            // Fade out bottom shadow for the first half of the flip animation
+            this.shadowBottom.haltOpacity();
+            this.shadowBottom.setOpacity(.33, { duration: 0}, () => {
+                this.shadowBottom.setOpacity(0, {
+                    duration: shadowDuration
+                }, () => {
+                    // Fade in top shadow for the second half of the flip animation
+                    this.shadowTop.haltOpacity();
+                    this.shadowTop.setOpacity(.33, {
+                        duration: shadowDuration
+                    });
+                });
+            });
+        }
+
+        // The bottom card gets flipped to the top
+        bottomCard.setRotationX((180 * Math.PI) / 180, {
+            duration: flipDuration
+        }, () => {
+            if(this.duration > 50) {
+                this.duration *= .8;
+            }
+
+            if(this.flipCount === 12 && !this.timelineInitialized) {
+                this.registerTimelinePaths();
+            }
+
+            if(this.flipCount < 35) {
+                this.shadowTop.haltOpacity();
+                this.shadowTop.setOpacity(0, {duration: 0}, () => {
+                    this.advanceCard(nextCard);
+                    this.advanceCard(topCard);
+                    this.advanceCard(bottomCard);
+                    this.clock.setTimeout(this.flipCard.bind(this), this.duration);
+                });
+            }
+        });
+    }
+
+    advanceCard(card) {
+        let zPos;
+
+        if(card.order === 1) {          // Was at top, advance to next
+            zPos = this.baseZPos.next;
+            card.order = 3;
+            card.setRotationX(0);
+            card.car.advanceImage();
+            card.title.updatePhrase();
+        } else if(card.order === 2) {   // Was at bottom, advance to top
+            zPos = this.baseZPos.top;
+            card.order = 1;
+        } else if(card.order === 3) {   // Was at next, advance to bottom
+            zPos = this.baseZPos.bottom;
+            card.order = 2;
+        }
+
+        card.setPositionZ(zPos);
+        card.setDOMProperties({
+            'z-index': zPos
+        });
+    }
+
+    registerTimelinePaths() {
         this.timelineInitialized = true;
         this.timeline = new Timeline({ timescale: 1 });
 
@@ -358,257 +314,97 @@ class App extends DomView {
         };
 
         this.time.closingText = {
-            a: [3100, 4250, 4500],
-            b: [4400, 4600]
+            a: [3100, 4250, 4900],
+            b: [5000, 5500]
         };
 
         this.time.end   = 7500;  // Finis
 
-        this.registerLogoQuadrants();
-        this.registerLogoCircles();
-        this.registerLogoLetters();
         this.registerCar();
-        this.registerLogo();
         this.registerClosingText();
+        this.registerSky();
+        this.registerFlipCard();
 
         this.timeline.set(this.time.end, { duration: this.time.end });
     }
 
-    registerLogoQuadrants() {
-        const _this = this;
-
-        this.logoQuadrants.forEach(function(quadrant, i) {
-            let x, y, startTime;
-            const offset = 400;
-
-            switch(quadrant.model.imageNumber) {
-                case 0:  // top left
-                    startTime = _this.time.quad.a;
-                    x = -offset;
-                    y = -offset;
-                    break;
-                case 1: // bottom right
-                    startTime = _this.time.quad.b;
-                    x = offset;
-                    y = offset;
-                    break;
-                case 2: // top right
-                    startTime = _this.time.quad.c;
-                    x = offset;
-                    y = -offset;
-                    break;
-                case 3: // bottom left
-                    startTime = _this.time.quad.d;
-                    x = -offset;
-                    y = offset;
-                    break;
-                default:
-                    x = 0;
-                    y = 0;
-                    break;
-            }
-
-            let endTime = startTime + _this.time.quad.duration;
-
-            _this.timeline.registerComponent({
-                component: quadrant.position,
-                path: [
-                    [0, [x, y]],
-                    [startTime, [x, y]],
-                    [endTime, [0, 0], Curves.outQuad]
-                ]
-            });
-        });
-    }
-
-    registerLogoCircles() {
-        const _this = this;
-
-        this.logoCircles.forEach(function(circle) {
-            let scale, opacity;
-
-            circle.origin.set(.5, .5);
-
-            switch(circle.model.imageNumber) {
-                case 4: // Large black ring
-                    scale = [
-                        [_this.time.start, [.25, .25]],
-                        [_this.time.circles.a[0], [.25, .25]],
-                        [_this.time.circles.a[1], [1.1, 1.1]],
-                        [_this.time.circles.a[2], [1, 1]]
-                    ];
-                    opacity = [
-                        [_this.time.start, 0],
-                        [_this.time.circles.a[0], 0],
-                        [_this.time.circles.a[2], 1]
-                    ];
-                    break;
-                case 5: // black outline
-                    scale = [
-                        [_this.time.start, [1.25, 1.25]],
-                        [_this.time.circles.b[0], [1.25, 1.25]],
-                        [_this.time.circles.b[1], [.8, .8]],
-                        [_this.time.circles.b[2], [1, 1]]
-                    ];
-                    opacity = [
-                        [_this.time.start, 0],
-                        [_this.time.circles.b[0] - 50, 0],
-                        [_this.time.circles.b[0], .5],
-                        [_this.time.circles.b[2], 1]
-                    ];
-                    break;
-                case 6: // gradient outline
-                    scale = [
-                        [_this.time.start, [.25, .25]],
-                        [_this.time.circles.c[0], [.25, .25]],
-                        [_this.time.circles.c[1], [1.2, 1.2]],
-                        [_this.time.circles.c[2], [1, 1]]
-                    ];
-                    opacity = [
-                        [_this.time.start, 0],
-                        [_this.time.circles.c[0] - 50, 0],
-                        [_this.time.circles.c[0], .5],
-                        [_this.time.circles.c[2], 1]
-                    ];
-                    break;
-                case 7: //Grey center circle
-                    scale = [
-                        [_this.time.start, [.5, .5]],
-                        [_this.time.circles.d[0], [.5, .5]],
-                        [_this.time.circles.d[1], [1, 1]]
-                    ];
-                    opacity = [
-                        [_this.time.start, 0],
-                        [_this.time.circles.d[0], 0],
-                        [_this.time.circles.d[1], 1]
-                    ];
-                    break;
-                default:
-                    scale = [];
-                    opacity = [];
-                    break;
-            }
-
-            _this.timeline.registerComponent({
-                component: circle.scale,
-                path: scale
-            });
-
-            _this.timeline.registerComponent({
-                component: circle.opacity,
-                path: opacity
-            });
-        });
-    }
-
-    registerLogoLetters() {
-        const _this = this;
-        this.logoLetters.forEach(function(letter) {
-            let opacity;
-
-            switch (letter.model.imageNumber) {
-                case 8: // Large black ring
-                    opacity = [
-                        [_this.time.start, 0],
-                        [_this.time.letters.a[0], 0],
-                        [_this.time.letters.a[1], 1]
-                    ];
-                    break;
-                case 9: // black outline
-                    opacity = [
-                        [_this.time.start, 0],
-                        [_this.time.letters.b[0], 0],
-                        [_this.time.letters.b[1], 1]
-                    ];
-                    break;
-                case 10: // gradient outline
-                    opacity = [
-                        [_this.time.start, 0],
-                        [_this.time.letters.c[0], 0],
-                        [_this.time.letters.c[1], 1]
-                    ];
-                    break;
-                default:
-                    opacity = [];
-                    break;
-            }
-
-            _this.timeline.registerComponent({
-                component: letter.opacity,
-                path: opacity
-            });
-        });
+    registerFlipCard() {
+        this.timeline.registerPath({
+            handler: (val) => {
+                if(val >= this.time.car.b[0]) {
+                    this.flipCards[0].setDOMProperties({
+                        'background-color': 'rgba(0, 0, 0, 0)'
+                    });
+                }
+            },
+            path: [
+                [0, 0],
+                [this.time.end, this.time.end]
+            ]
+        })
     }
 
     registerCar() {
-        const _this = this;
+        let lastCard = this.flipCards[0];
 
-        this.timeline.registerComponent({
-            component: this.carA.position,
+        this.timeline.registerPath({
+            handler: (val) => {
+                lastCard.car.setPosition(...val);
+            },
             path: [
                 [this.time.start, [0, 0]],
                 [this.time.car.a[0], [0, 0]],
                 [this.time.car.a[1], [400, -600], Curves.outCirc],
                 [this.time.car.b[0], [400, -825]],
-                [this.time.car.b[1], [-50, -375], Curves.inCirc]
+                [this.time.car.b[1], [0, -375], Curves.inCirc]
             ]
         });
 
-        this.timeline.registerCallback({
-            time: this.time.car.a[0],
-            direction: 1,
-            fn: function() {
-                //FLip card A is the view that holds the animating car
-                _this.flipCardA.position.setZ(102);
-                _this.flipCardA.setStyle({
-                    'z-index': _this.baseZPos.bottom + 1
-                });
-            }
-        });
+        this.timeline.registerPath({
+            handler: (time) => {
+                if(!this.hasOwnProperty('hasUpdatedImage')) {
+                    this.hasUpdatedImage = false;
+                }
 
-        this.timeline.registerCallback({
-            time: this.time.car.b[0],
-            direction: 1,
-            fn: function() {
-                _this.carA.updateImage('orange_mirrored');
-                _this.carA.size.setAbsolute(550, 367);
-            }
+                if(time >= this.time.car.b[0]) {
+                    lastCard.car.updateImage('orange_mirrored');
+                    lastCard.car.setScale(1, 1);
+                    lastCard.car.setSizeModeAbsolute();
+                    lastCard.car.setAbsoluteSize(550, 367);
+                }
+            },
+            path: [
+                [0, 0],
+                [this.time.end, this.time.end]
+            ]
         });
     }
 
-    registerLogo() {
-        this.timeline.registerComponent({
-            component: this.logo.opacity,
+    registerSky() {
+        this.timeline.registerPath({
+            handler: (val) => {
+                this.sky.setDOMProperties({
+                    'background-color': 'rgb(' + Math.floor(val[0]) + ', ' + Math.floor(val[1]) + ', ' + Math.floor(val[2]) + ')'
+                })
+            },
             path: [
-                [this.time.start, 0],
-                [this.time.quad.a - 1, 0],
-                [this.time.quad.a, 1]
+                [this.time.car.b[0] + 0,    [255, 255, 255]],
+                [this.time.car.b[0] + 50,  [255, 248, 224]],
+                [this.time.car.b[0] + 100,  [255, 213, 78]],
+                [this.time.car.b[0] + 150,  [255, 154, 0]],
+                [this.time.car.b[0] + 200,  [229, 95,  21]],
+                [this.time.car.b[0] + 250,  [205, 41,  103]],
+                [this.time.car.b[1], [0, 0, 0]]
             ]
-        });
-
-        this.timeline.registerComponent({
-            component: this.logo.scale,
-            path: [
-                [this.time.start, [1, 1, 1]],
-                [this.time.logo.a[0], [1, 1, 1]],
-                [this.time.logo.a[1], [.75, .75, .75], Curves.outCubic],
-                [this.time.logo.a[2], [.8, .8, .8]]
-            ]
-        });
-
-        this.timeline.registerComponent({
-            component: this.logo.position,
-            path: [
-                [this.time.start, [0, 75, 0]],
-                [this.time.logo.a[0], [0, 75, 0]],
-                [this.time.logo.a[2], [0, 350, 0], Curves.easeIn]
-            ]
-        });
+        })
     }
 
     registerClosingText() {
-        this.timeline.registerComponent({
-            component: this.closingText1.opacity,
+        //Closing text 1
+        this.timeline.registerPath({
+            handler: (val) => {
+                this.closingText1.setOpacity(val);
+            },
             path: [
                 [this.time.start, 0],
                 [this.time.closingText.a[0], 0],
@@ -617,17 +413,21 @@ class App extends DomView {
             ]
         });
 
-        this.timeline.registerComponent({
-            component: this.closingText1.position,
-            path: [
-                [this.time.start, [0, this.closingText1.position.getY()]],
-                [this.time.closingText.a[1], [0, this.closingText1.position.getY()]],
-                [this.time.closingText.a[2], [0, this.closingText1.position.getY() + 100]]
-            ]
+        let ypos = this.closingText1.position.getY();
+        this.timeline.registerPath({
+            handler: (val) => {
+                this.closingText1.setPosition(...val)
+            },
+            path: [[this.time.start, [0, ypos]],
+                [this.time.closingText.a[1], [0, ypos]],
+                [this.time.closingText.a[2], [0, ypos + 100]]]
         });
 
-        this.timeline.registerComponent({
-            component: this.closingText2.opacity,
+        //Closing text 2
+        this.timeline.registerPath({
+            handler: (val) => {
+                this.closingText2.setOpacity(val);
+            },
             path: [
                 [this.time.start, 0],
                 [this.time.closingText.b[0], 0],
@@ -637,9 +437,8 @@ class App extends DomView {
     }
 }
 
-const root = core.Famous.createContext('body');
+const rootNode = FamousPlatform.core.Famous.createContext('body');
+let camera = new FamousPlatform.components.Camera(rootNode);
+camera.setDepth(20000);
 
-window.bmw = new App({
-    node: root.addChild(),
-    model: {}
-});
+window.app = new App(rootNode.addChild(), {});
