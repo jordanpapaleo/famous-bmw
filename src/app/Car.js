@@ -7,13 +7,15 @@ export class Car extends View {
 
         this.model = options;
 
-        this.setAlign(0, 1);
-        this.setMountPoint(0, 1);
+        this.setAlign(.5, .9);
+        this.setMountPoint(.5, 1);
+        this.setOrigin(.5, .5);
         this.setPositionZ(1);
 
         this.setSizeMode(0, 1);
         this.setProportionalSize(1, null);
         this.setAbsoluteSize(null, 280);
+        this.setScale(1.2, 1.2);
 
         this.createDOMElement({
             tagName: 'img',
@@ -22,14 +24,22 @@ export class Car extends View {
             },
             classes: ['car-image'],
             properties: {
-                'backface-visibility': 'hidden',
+                'backface-visibility': 'hidden'
             }
         });
     }
 
     advanceImage() {
+        if(Image.getCurrent() < Image.getMax()) {
+            this.setDOMAttributes({
+                'src': `assets/images/car/${Image.getNext()}.jpg`
+            });
+        }
+    }
+
+    updateImage(img) {
         this.setDOMAttributes({
-            'src': `assets/images/car/${Image.getNext()}.jpg`
+            'src': `assets/images/car/${img}.png`
         });
     }
 }

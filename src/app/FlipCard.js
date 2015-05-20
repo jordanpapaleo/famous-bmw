@@ -19,7 +19,8 @@ export class FlipCard extends View {
         this.createDOMElement({
             classes: [`card-${this.model.alphaId}`],
             properties: {
-                'z-index': this.model.zPos
+                'z-index': this.model.zPos,
+                'background-color': 'white'
             }
         });
 

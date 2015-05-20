@@ -36,6 +36,10 @@ export class Title extends View {
     }
 
     updatePhrase() {
-        this.setDOMContent(Phrase.getCurrentPhrase());
+        if(Phrase.getCurrentIndex() === 12) {
+            this.setOpacity(0);
+        } else {
+            this.setDOMContent(Phrase.getCurrentPhrase());
+        }
     }
 }
