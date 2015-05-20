@@ -47,16 +47,21 @@ class App extends View {
         this.pointLightA = new View(this.node.addChild());
         this.pointLightA.pointLightA = new PointLight(this.pointLightA.addChild());
         this.pointLightA.pointLightA.setColor(new Color('#eeeeee'));
-        this.pointLightA.setPosition(500, -500, 4000);
+        this.pointLightA.setPosition(500, -500, -1000);
 
         this.pointLightB = new View(this.node.addChild());
         this.pointLightB.pointLight = new PointLight(this.pointLightB.addChild());
-        this.pointLightB.pointLight.setColor(new Color('#aaaaaa'));
-        this.pointLightB.setPosition(-100, -3000, -4000);
+        this.pointLightB.pointLight.setColor(new Color('#fbfcde'));
+        this.pointLightB.setPosition(-200, -200, 500);
+
+        this.pointLightC = new View(this.node.addChild());
+        this.pointLightC.pointLight = new PointLight(this.pointLightC.addChild());
+        this.pointLightC.pointLight.setColor(new Color('#111133'));
+        this.pointLightC.setPosition(200, 300, 1500);
 
         this.ambientLight = new View(this.node.addChild());
         this.ambientLight.ambientLight = new AmbientLight(this.ambientLight.addChild());
-        this.ambientLight.ambientLight.setColor(new Color('#111111'));
+        this.ambientLight.ambientLight.setColor(new Color('#555555'));
 
 
         // this.initFlipBook();
