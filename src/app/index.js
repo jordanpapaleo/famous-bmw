@@ -5,9 +5,14 @@ import {FlipCard}       from './FlipCard';
 import Image            from './ImageService';
 import Phrase           from './PhraseService';
 
+import {Logo}           from './Logo';
+
 //Famous Components
 const Curves            = FamousPlatform.transitions.Curves;
 const Famous            = FamousPlatform.core.Famous;
+const PointLight = FamousPlatform.webglRenderables.PointLight;
+const Color = FamousPlatform.utilities.Color;
+const AmbientLight = FamousPlatform.webglRenderables.AmbientLight;
 
 class App extends View {
     constructor(options) {
@@ -38,7 +43,23 @@ class App extends View {
         this.renderClosingText();
         this.renderSky();
 
-        this.initFlipBook();
+        this.logo = new Logo(this.addChild());
+        this.pointLightA = new View(this.node.addChild());
+        this.pointLightA.pointLightA = new PointLight(this.pointLightA.addChild());
+        this.pointLightA.pointLightA.setColor(new Color('#eeeeee'));
+        this.pointLightA.setPosition(500, -500, 4000);
+
+        this.pointLightB = new View(this.node.addChild());
+        this.pointLightB.pointLight = new PointLight(this.pointLightB.addChild());
+        this.pointLightB.pointLight.setColor(new Color('#aaaaaa'));
+        this.pointLightB.setPosition(-100, -3000, -4000);
+
+        this.ambientLight = new View(this.node.addChild());
+        this.ambientLight.ambientLight = new AmbientLight(this.ambientLight.addChild());
+        this.ambientLight.ambientLight.setColor(new Color('#111111'));
+
+
+        // this.initFlipBook();
     }
 
     renderFlipCards() {
@@ -439,6 +460,7 @@ class App extends View {
 
 const rootNode = FamousPlatform.core.Famous.createContext('body');
 let camera = new FamousPlatform.components.Camera(rootNode);
-camera.setDepth(20000);
+// camera.setDepth(20000);
+camera.set(FamousPlatform.components.Camera.PINHOLE_PROJECTION, 1000);
 
 window.app = new App(rootNode.addChild(), {});
