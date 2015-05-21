@@ -2,10 +2,11 @@ import View             from 'famous-creative/display/View';
 
 //GL Components
 const Color             = FamousPlatform.utilities.Color;
-const DynamicGeometry   = FamousPlatform.webglGeometries.DynamicGeometry;
 const Geometry          = FamousPlatform.webglGeometries.Geometry;
 const GeometryHelper    = FamousPlatform.webglGeometries.GeometryHelper;
 const OBJLoader         = FamousPlatform.webglGeometries.OBJLoader;
+const Material          = FamousPlatform.webglMaterials.Material;
+const TextureRegistry   = FamousPlatform.webglMaterials.TextureRegistry;
 
 export class Logo extends View {
     constructor(node, options) {
@@ -39,21 +40,32 @@ export class Logo extends View {
             darkestGrey: '#222222',
             darkerGrey: '#444444',
             darkGrey: '#555555',
-            gray: '#AAAAAA'
+            gray: '#AAAAAA',
+            glossy: '#bbbbdd'
         };
+
+        console.log('this.geometries.B', this.geometries.B);
+
 
         this.geometries.B.setBaseColor(new Color(color.white));
         this.geometries.M.setBaseColor(new Color(color.white));
         this.geometries.W.setBaseColor(new Color(color.white));
+        /*this.geometries.B.mesh.setGlossiness(glossyColor, 60);
+        this.geometries.M.mesh.setGlossiness(glossyColor, 60);
+        this.geometries.W.mesh.setGlossiness(glossyColor, 60);*/
+
         this.geometries.first.setBaseColor(new Color(color.white));
         this.geometries.second.setBaseColor(new Color(color.blue));
         this.geometries.third.setBaseColor(new Color(color.white));
         this.geometries.fourth.setBaseColor(new Color(color.blue));
         this.geometries.insideCyl.setBaseColor(new Color(color.darkestGrey));
+
         this.geometries.outsideCyl.setBaseColor(new Color(color.darkerGrey));
-        this.geometries.cross.setBaseColor(new Color(color.darkGrey));
         this.geometries.innerRing.setBaseColor(new Color(color.gray));
         this.geometries.outerRing.setBaseColor(new Color(color.gray));
+        /*this.geometries.outsideCyl.mesh.setGlossiness(glossyColor, 100);
+        this.geometries.innerRing.mesh.setGlossiness(glossyColor, 100);
+        this.geometries.outerRing.mesh.setGlossiness(glossyColor, 100);*/
     }
 
     objFactory(node, name) {

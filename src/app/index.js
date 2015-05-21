@@ -40,7 +40,10 @@ class App extends View {
                 'overflow': 'hidden'
             }
         });
+
         this.clock = FamousPlatform.core.FamousEngine.getClock();
+
+
 
         //this.renderFlipCards();
         //this.renderShadows();
@@ -186,19 +189,25 @@ class App extends View {
 
     renderLogo() {
         this.logo = new Logo(this.addChild());
+
         this.pointLightA = new View(this.node.addChild());
-        this.pointLightA.pointLightA = new PointLight(this.pointLightA.addChild());
-        this.pointLightA.pointLightA.setColor(new Color('#eeeeee'));
-        this.pointLightA.setPosition(500, -500, 4000);
+        this.pointLightA.pointLight = new PointLight(this.pointLightA.addChild());
+        this.pointLightA.pointLight.setColor(new Color('#eeeeee'));
+        this.pointLightA.setPosition(500, -500, -100);
 
         this.pointLightB = new View(this.node.addChild());
         this.pointLightB.pointLight = new PointLight(this.pointLightB.addChild());
-        this.pointLightB.pointLight.setColor(new Color('#aaaaaa'));
-        this.pointLightB.setPosition(-100, -3000, -4000);
+        this.pointLightB.pointLight.setColor(new Color('#CCCCCC'));
+        this.pointLightB.setPosition(-200, -200, 50);
+
+        this.pointLightC = new View(this.node.addChild());
+        this.pointLightC.pointLight = new PointLight(this.pointLightC.addChild());
+        this.pointLightC.pointLight.setColor(new Color('#CCCCCC'));
+        this.pointLightC.setPosition(200, 300, 1500);
 
         this.ambientLight = new View(this.node.addChild());
         this.ambientLight.ambientLight = new AmbientLight(this.ambientLight.addChild());
-        this.ambientLight.ambientLight.setColor(new Color('#111111'));
+        this.ambientLight.ambientLight.setColor(new Color('#555555'));
     }
 
     initFlipBook() {
