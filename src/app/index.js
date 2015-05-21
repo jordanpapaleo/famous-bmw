@@ -727,6 +727,6 @@ class App extends View {
 }
 
 FamousEngine.init();
-FamousEngine.createScene('body');
+FamousEngine.createScene('#app');
 
-window.app = new App(FamousEngine.addChild('body'));
+window.app = new App(FamousEngine.addChild('#app'));

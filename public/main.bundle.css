@@ -16,6 +16,14 @@ body div {
 div {
   box-sizing: border-box;
 }
+#app {
+  width: 384px;
+  height: 768px;
+  overflow: hidden;
+  border: 1px solid black;
+  margin: 0 auto;
+  position: relative;
+}
 .backface-visibile {
   -webkit-backface-visibility: visible;
   backface-visibility: visible;
