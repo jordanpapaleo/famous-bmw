@@ -12,9 +12,10 @@ export class Logo extends View {
     constructor(node, options) {
         super(node, options);
 
-        this.setAlign(0.5, .5, 0.5).setMountPoint(0.5, .5, 0.5).setOrigin(0.5, 0.5, 0.5);
+        this.setAlign(0.5, 0, 0.5).setMountPoint(0.5, 0, 0.5).setOrigin(0.5, 0.5, 0.5);
         this.setSizeModeAbsolute().setAbsoluteSize(200, 200, 200);
         this.setPositionZ(500);
+        this.setPositionY(100);
 
         this.parent = new View(this.addChild());
         this.quads  = new View(this.parent.addChild());
@@ -43,9 +44,6 @@ export class Logo extends View {
             gray: '#AAAAAA',
             glossy: '#bbbbdd'
         };
-
-        console.log('this.geometries.B', this.geometries.B);
-
 
         this.geometries.B.setBaseColor(new Color(color.white));
         this.geometries.M.setBaseColor(new Color(color.white));

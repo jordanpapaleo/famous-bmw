@@ -43,16 +43,13 @@ class App extends View {
 
         this.clock = FamousPlatform.core.FamousEngine.getClock();
 
-
-
-        //this.renderFlipCards();
-        //this.renderShadows();
-        //this.renderClosingText();
-        //this.renderSky();
+        this.renderFlipCards();
+        this.renderShadows();
+        this.renderClosingText();
+        this.renderSky();
         this.renderLogo();
-        this.registerTimelinePaths();
 
-        // this.initFlipBook();
+         this.initFlipBook();
     }
 
     renderFlipCards() {
@@ -268,7 +265,7 @@ class App extends View {
                 this.duration *= .8;
             }
 
-            if(this.flipCount === 12 && !this.timelineInitialized) {
+            if(this.flipCount === 10 && !this.timelineInitialized) {
                 this.registerTimelinePaths();
             }
 
@@ -312,57 +309,20 @@ class App extends View {
         this.timeline = new Timeline({ timescale: 1 });
 
         this.time = {};
-        this.time.start = 0;
-        this.time.quad = {
-            duration: 300,
-            a: 250,
-            b: 400,
-            c: 550,
-            d: 700
-        };
-
-        this.time.circles = {
-            a: [700, 1000, 1200],
-            b: [1100, 1400, 1700],
-            c: [1100, 1400, 1700],
-            d: [1400, 1800]
-        };
-
-        this.time.letters = {
-            a: [1800, 2200],
-            b: [2100, 2500],
-            c: [2400, 2800]
-        };
-
-        this.time.car = {
-            a: [3000, 4000],
-            b: [5000, 6000]
-        };
-
-        this.time.logo = {
-            a: [4000, 4250, 4500]
-        };
-
         this.time.closingText = {
             a: [3100, 4250, 4900],
             b: [5000, 5500]
         };
 
-        this.time.end   = 20000;  // Finis
-
         this.registerLogo();
 
-        //this.registerCar();
         //this.registerClosingText();
         //this.registerSky();
         //this.registerFlipCard();
 
-        setTimeout(() => {
-            this.timeline.set(this.time.end, { duration: this.time.end});
-        }, 500);
+        this.timeline.set(20000, { duration: 20000});
     }
 
-    //DONE
     registerLogo() {
         const logoQuadrants = [
             this.logo.geometries.second,
@@ -371,29 +331,33 @@ class App extends View {
             this.logo.geometries.third
         ];
 
+        let time = {
+            a: [0, 250, 500, 750],
+            end: 1750
+        };
+
         logoQuadrants.forEach((quadrant, i) => {
-            quadrant.setOpacity(1);
             let x, y, startTime;
             const offset = 400;
 
             switch(i) {
                 case 0:  // top left
-                    startTime = 0;//this.time.quad.a;
+                    startTime = time.a[0];//this.time.quad.a;
                     x = -offset;
                     y = -offset;
                     break;
                 case 1: // bottom right
-                    startTime = 500;//this.time.quad.b;
+                    startTime = time.a[1];//this.time.quad.b;
                     x = offset;
                     y = offset;
                     break;
                 case 2: // top right
-                    startTime = 1000;//this.time.quad.c;
+                    startTime = time.a[2];//this.time.quad.c;
                     x = offset;
                     y = -offset;
                     break;
                 case 3: // bottom left
-                    startTime = 1500; //this.time.quad.d;
+                    startTime = time.a[3]; //this.time.quad.d;
                     x = -offset;
                     y = offset;
                     break;
@@ -405,8 +369,22 @@ class App extends View {
                 },
                 path: [
                     [0, [x, y, 0]],
-                    [startTime, [x, y, 0]],
-                    [startTime + 1500, [0, 0, 0], Curves.inOutBack]
+                    [startTime, [x, y, 0], Curves.inOutBack],
+                    [startTime + 1000, [0, 0, 0]]
+                ]
+            });
+
+            this.timeline.registerPath({
+               handler: (t) => {
+                   if(t >= 200) {
+                       quadrant.setOpacity(1, {
+                           duration: 250
+                       });
+                   }
+               },
+                path: [
+                    [0, 0],
+                    [time.end, time.end]
                 ]
             });
 
@@ -419,48 +397,48 @@ class App extends View {
                     quadrant.setRotation(...val);
                 },
                 path: [
-                    [0, [rotX, rotY, rotZ]],
                     [startTime, [rotX, rotY, rotZ]],
-                    [startTime + 1500, [0, 0, 0]]
+                    [startTime + 1000, [0, 0, 0]]
                 ]
             });
         });
 
-        this.registerLoadOutsideCylinder();
+        this.registerLoadOutsideCylinder(time.end);
     }
 
-    //DONE
     registerLoadOutsideCylinder(startTime) {
         startTime = (startTime) ? startTime : 0;
-        let hasScaled = false;
-        let phaseDuration = 4000;
+        let time = {
+            a: [startTime],
+            end: startTime + 1000
+        };
 
+        let hasScaled = false;
         this.timeline.registerPath({
-            handler: (time) => {
-                if (!hasScaled && time >= (startTime + (phaseDuration *.75))) {
+            handler: (t) => {
+                if (!hasScaled && t >= time.a[0]) {
                     hasScaled = true;
 
                     this.logo.geometries.outsideCyl.setScale(0, 0, 0, {duration: 0}, () => {
                         this.logo.geometries.outsideCyl.setScale(1, 1, 1, {
-                            duration: phaseDuration *.25,
+                            duration: 1000,
                             curve: Curves.outBack
                         });
                         this.logo.geometries.outsideCyl.setOpacity(1, {
-                            duration: phaseDuration *.2
+                            duration: 800
                         });
                     });
                 }
             },
             path: [
-                [0, 0],
-                [this.time.end, this.time.end]
+                [startTime, startTime],
+                [time.end, time.end]
             ]
         });
 
-        this.registerRotateAssembleLogo(startTime + phaseDuration);
+        this.registerRotateAssembleLogo(time.end);
     };
 
-    //DONE
     registerRotateAssembleLogo(startTime) {
         startTime = (startTime) ? startTime : 0;
         let phaseDuration = 1750;
@@ -503,7 +481,6 @@ class App extends View {
         this.registerAddOuterRingInsideCyl(endTime);
     }
 
-    //DONE
     registerAddOuterRingInsideCyl(startTime) {
         startTime = (startTime) ? startTime : 0;
         let phaseDuration = 1500;
@@ -552,7 +529,6 @@ class App extends View {
         this.registerLetterEntry(endTime);
     }
 
-    //DONE
     registerLetterEntry(startTime) {
         startTime = (startTime) ? startTime : 0;
         let phaseDuration = 1500;
@@ -589,25 +565,19 @@ class App extends View {
                 [endTime, endTime]
             ]
         });
+
+        this.registerCar(endTime);
+        this.registerSky(endTime);
     }
 
-    registerFlipCard() {
-        this.timeline.registerPath({
-            handler: (val) => {
-                if(val >= this.time.car.b[0]) {
-                    this.flipCards[0].setDOMProperties({
-                        'background-color': 'rgba(0, 0, 0, 0)'
-                    });
-                }
-            },
-            path: [
-                [0, 0],
-                [this.time.end, this.time.end]
-            ]
-        })
-    }
+    registerCar(startTime) {
+        startTime = (startTime) ? startTime : 0;
+        let time = {
+            a: [startTime, startTime + 1000],
+            b: [startTime + 2000, startTime + 3000],
+            end: startTime + 3000
+        };
 
-    registerCar() {
         let lastCard = this.flipCards[0];
 
         this.timeline.registerPath({
@@ -615,21 +585,18 @@ class App extends View {
                 lastCard.car.setPosition(...val);
             },
             path: [
-                [this.time.start, [0, 0]],
-                [this.time.car.a[0], [0, 0]],
-                [this.time.car.a[1], [400, -600], Curves.outCirc],
-                [this.time.car.b[0], [400, -825]],
-                [this.time.car.b[1], [0, -375], Curves.inCirc]
+                [startTime, [0, 0]],
+                [time.a[1], [400, -600], Curves.outCirc],
+                [time.b[0], [400, -825]],
+                [time.b[1], [0, -375], Curves.inCirc]
             ]
         });
 
+        let hasUpdatedImage = false;
         this.timeline.registerPath({
-            handler: (time) => {
-                if(!this.hasOwnProperty('hasUpdatedImage')) {
-                    this.hasUpdatedImage = false;
-                }
-
-                if(time >= this.time.car.b[0]) {
+            handler: (t) => {
+                if(!hasUpdatedImage && t >= time.b[0]) {
+                    hasUpdatedImage = true;
                     lastCard.car.updateImage('orange_mirrored');
                     lastCard.car.setScale(1, 1);
                     lastCard.car.setSizeModeAbsolute();
@@ -638,12 +605,37 @@ class App extends View {
             },
             path: [
                 [0, 0],
-                [this.time.end, this.time.end]
+                [time.end, time.end]
             ]
         });
+
+        let isOpacitated = false;
+        this.timeline.registerPath({
+            handler: (t) => {
+                if(!isOpacitated && t >= startTime) {
+                    isOpacitated = true;
+                    this.flipCards.forEach(function(card) {
+                        card.setDOMProperties({
+                            'background-color': 'rgba(0, 0, 0, 0)'
+                        })
+                    });
+                }
+            },
+            path: [
+                [startTime, startTime],
+                [time.end, time.end]
+            ]
+        })
     }
 
-    registerSky() {
+    registerSky(startTime) {
+        startTime = (startTime) ? startTime : 0;
+        let time = {
+            a: [startTime, startTime + 1000],
+            b: [startTime + 2000, startTime + 3000],
+            end: startTime + 3000
+        };
+
         this.timeline.registerPath({
             handler: (val) => {
                 this.sky.setDOMProperties({
@@ -651,16 +643,19 @@ class App extends View {
                 })
             },
             path: [
-                [this.time.car.b[0] + 0,    [255, 255, 255]],
-                [this.time.car.b[0] + 50,  [255, 248, 224]],
-                [this.time.car.b[0] + 100,  [255, 213, 78]],
-                [this.time.car.b[0] + 150,  [255, 154, 0]],
-                [this.time.car.b[0] + 200,  [229, 95,  21]],
-                [this.time.car.b[0] + 250,  [205, 41,  103]],
-                [this.time.car.b[1], [0, 0, 0]]
+                [time.b[0] + 0,    [255, 255, 255]],
+                [time.b[0] + 50,   [255, 248, 224]],
+                [time.b[0] + 100,  [255, 213, 78]],
+                [time.b[0] + 150,  [255, 154, 0]],
+                [time.b[0] + 200,  [229, 95,  21]],
+                [time.b[0] + 250,  [205, 41,  103]],
+                [time.b[1],        [0, 0, 0]]
             ]
         })
     }
+
+
+
 
     registerClosingText() {
         //Closing text 1
