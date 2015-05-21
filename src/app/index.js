@@ -560,6 +560,12 @@ class App extends View {
     }
 
     registerCar(startTime) {
+        this.headlights = new View(this.addChild());
+        this.headlights.setAlign(0.5, 0, 0).setMountPoint(0.5, 0, 0);
+        this.headlights.setSizeMode(0, 1);
+        this.headlights.setProportionalSize(1, null);
+        this.headlights.setAbsoluteSize(null, 280);
+
         startTime = (startTime) ? startTime : 0;
         let time = {
             a: [startTime, startTime + 1000],
@@ -608,11 +614,43 @@ class App extends View {
                             'background-color': 'rgba(0, 0, 0, 0)'
                         })
                     });
+
+                    this.registerLogoDrop(t);
                 }
             },
             path: [
                 [startTime, startTime],
                 [time.end, time.end]
+            ]
+        })
+    }
+
+    registerLogoDrop(startTime) {
+        startTime = (startTime) ? startTime : 0;
+        let time = {
+            a: [startTime + 1500, startTime + 3000],
+            end: startTime + 300
+        };
+
+        this.timeline.registerPath({
+            handler: (val) => {
+                this.logo.setPosition(...val);
+            },
+            path: [
+                [startTime,  [0, 100, 500], Curves.easeIn],
+                [time.a[0], [0, 250, 500], Curves.easeOut],
+                [time.a[1], [0, 365, 500]]
+            ]
+        });
+
+        this.timeline.registerPath({
+            handler: (val) => {
+                this.logo.setScale(...val)
+            },
+            path: [
+                [startTime,  [1, 1, 1], Curves.easeOut],
+                [time.a[0], [.7, .7, .7], Curves.easeIn],
+                [time.a[1], [.9, .9, .9]]
             ]
         })
     }
