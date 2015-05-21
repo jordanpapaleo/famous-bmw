@@ -307,19 +307,7 @@ class App extends View {
     registerTimelinePaths() {
         this.timelineInitialized = true;
         this.timeline = new Timeline({ timescale: 1 });
-
-        this.time = {};
-        this.time.closingText = {
-            a: [3100, 4250, 4900],
-            b: [5000, 5500]
-        };
-
         this.registerLogo();
-
-        //this.registerClosingText();
-        //this.registerSky();
-        //this.registerFlipCard();
-
         this.timeline.set(20000, { duration: 20000});
     }
 
@@ -567,6 +555,7 @@ class App extends View {
         });
 
         this.registerCar(endTime);
+        this.registerClosingText(endTime);
         this.registerSky(endTime);
     }
 
@@ -654,20 +643,24 @@ class App extends View {
         })
     }
 
+    registerClosingText(startTime) {
+        //7500
+        startTime = (startTime) ? startTime : 0;
+        let time = {
+            a: [startTime + 500, startTime + 1500, startTime + 3000],
+            b: [startTime + 2700, startTime + 3500]
+        };
 
-
-
-    registerClosingText() {
         //Closing text 1
         this.timeline.registerPath({
             handler: (val) => {
                 this.closingText1.setOpacity(val);
             },
             path: [
-                [this.time.start, 0],
-                [this.time.closingText.a[0], 0],
-                [this.time.closingText.a[1], 1],
-                [this.time.closingText.a[2], 0]
+                [startTime, 0],
+                [time.a[0], 0],
+                [time.a[1], 1],
+                [time.a[2], 0]
             ]
         });
 
@@ -676,9 +669,9 @@ class App extends View {
             handler: (val) => {
                 this.closingText1.setPosition(...val)
             },
-            path: [[this.time.start, [0, ypos]],
-                [this.time.closingText.a[1], [0, ypos]],
-                [this.time.closingText.a[2], [0, ypos + 100]]]
+            path: [[startTime, [0, ypos]],
+                [time.a[1], [0, ypos], Curves.easeOut],
+                [time.a[2], [0, ypos + 100]]]
         });
 
         //Closing text 2
@@ -687,9 +680,9 @@ class App extends View {
                 this.closingText2.setOpacity(val);
             },
             path: [
-                [this.time.start, 0],
-                [this.time.closingText.b[0], 0],
-                [this.time.closingText.b[1], 1]
+                [startTime, 0],
+                [time.b[0], 0],
+                [time.b[1], 1]
             ]
         });
     }
