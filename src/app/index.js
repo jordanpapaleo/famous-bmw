@@ -1,7 +1,10 @@
-import View             from 'famous-creative/display/View';
 import Timeline         from 'famous-creative/animation/Timeline';
+import View             from 'famous-creative/display/View';
+
+import FamousEngine     from 'famous-creative/scaffolding/FamousEngine';
 
 import {FlipCard}       from './FlipCard';
+import {Logo}           from './Logo';
 import Image            from './ImageService';
 import Phrase           from './PhraseService';
 
@@ -9,14 +12,20 @@ import Phrase           from './PhraseService';
 const Curves            = FamousPlatform.transitions.Curves;
 const Famous            = FamousPlatform.core.Famous;
 
-class App extends View {
-    constructor(options) {
-        super(options);
+//GL Components
+const AmbientLight      = FamousPlatform.webglRenderables.AmbientLight;
+const Color             = FamousPlatform.utilities.Color;
+const PointLight        = FamousPlatform.webglRenderables.PointLight;
 
-        this.setMountPoint(.5, .5);
-        this.setAlign(.5, .5);
-        this.setSizeModeAbsolute();
-        this.setAbsoluteSize(420, 768);
+class App extends View {
+    constructor(node) {
+        super(node);
+
+        let camera = new FamousPlatform.components.Camera(this.node);
+        camera.setDepth(8000);
+
+        this.setAlign(.5, .5).setMountPoint(.5, .5);
+        this.setSizeModeAbsolute().setAbsoluteSize(420, 768);
 
         this.baseZPos = {
             top: 99,
@@ -31,14 +40,35 @@ class App extends View {
                 'overflow': 'hidden'
             }
         });
-        this.clock = Famous.getClock();
+
+        this.clock = FamousPlatform.core.FamousEngine.getClock();
 
         this.renderFlipCards();
         this.renderShadows();
         this.renderClosingText();
         this.renderSky();
+        this.renderLogo();
 
-        this.initFlipBook();
+        /*this.headlights = new View(this.addChild());
+        this.headlights.setAlign(0.5, 0, 0).setMountPoint(0.5, 0, 0);
+        this.headlights.setSizeMode(0, 1);
+        this.headlights.setProportionalSize(1, null);
+        this.headlights.setAbsoluteSize(null, 280);
+        this.headlights.createDOMElement({
+            tagName: 'img',
+            classes: ['headlights'],
+            attributes: {
+                'src': `assets/images/car/headlights.png`
+            },
+            properties: {
+                'z-index': 600
+            }
+        });
+
+        this.headlights.setPositionY(45);
+        this.headlights.setPositionZ(600);*/
+
+         this.initFlipBook();
     }
 
     renderFlipCards() {
@@ -122,13 +152,6 @@ class App extends View {
     }
 
     renderClosingText() {
-        const properties = {
-            'text-align': 'center',
-                'font-size': '26px',
-                'line-height': '1',
-                'z-index': '200'
-        };
-
         //CLOSING TEXT 1
         this.closingText1 = new View(this.addChild());
         this.closingText1.setOpacity(0);
@@ -178,6 +201,29 @@ class App extends View {
         this.sky.setSizeModeRelative();
         this.sky.setProportionalSize(1, 1);
         this.sky.setPositionZ(-200);
+    }
+
+    renderLogo() {
+        this.logo = new Logo(this.addChild());
+
+        this.pointLightA = new View(this.node.addChild());
+        this.pointLightA.pointLight = new PointLight(this.pointLightA.addChild());
+        this.pointLightA.pointLight.setColor(new Color('#eeeeee'));
+        this.pointLightA.setPosition(500, -500, -100);
+
+        this.pointLightB = new View(this.node.addChild());
+        this.pointLightB.pointLight = new PointLight(this.pointLightB.addChild());
+        this.pointLightB.pointLight.setColor(new Color('#CCCCCC'));
+        this.pointLightB.setPosition(-200, -200, 50);
+
+        this.pointLightC = new View(this.node.addChild());
+        this.pointLightC.pointLight = new PointLight(this.pointLightC.addChild());
+        this.pointLightC.pointLight.setColor(new Color('#CCCCCC'));
+        this.pointLightC.setPosition(200, 300, 1500);
+
+        this.ambientLight = new View(this.node.addChild());
+        this.ambientLight.ambientLight = new AmbientLight(this.ambientLight.addChild());
+        this.ambientLight.ambientLight.setColor(new Color('#555555'));
     }
 
     initFlipBook() {
@@ -238,7 +284,7 @@ class App extends View {
                 this.duration *= .8;
             }
 
-            if(this.flipCount === 12 && !this.timelineInitialized) {
+            if(this.flipCount === 10 && !this.timelineInitialized) {
                 this.registerTimelinePaths();
             }
 
@@ -280,71 +326,266 @@ class App extends View {
     registerTimelinePaths() {
         this.timelineInitialized = true;
         this.timeline = new Timeline({ timescale: 1 });
-
-        this.time = {};
-        this.time.start = 0;
-        this.time.quad = {
-            duration: 300,
-            a: 250,
-            b: 400,
-            c: 550,
-            d: 700
-        };
-
-        this.time.circles = {
-            a: [700, 1000, 1200],
-            b: [1100, 1400, 1700],
-            c: [1100, 1400, 1700],
-            d: [1400, 1800]
-        };
-
-        this.time.letters = {
-            a: [1800, 2200],
-            b: [2100, 2500],
-            c: [2400, 2800]
-        };
-
-        this.time.car = {
-            a: [3000, 4000],
-            b: [5000, 6000]
-        };
-
-        this.time.logo = {
-            a: [4000, 4250, 4500]
-        };
-
-        this.time.closingText = {
-            a: [3100, 4250, 4900],
-            b: [5000, 5500]
-        };
-
-        this.time.end   = 7500;  // Finis
-
-        this.registerCar();
-        this.registerClosingText();
-        this.registerSky();
-        this.registerFlipCard();
-
-        this.timeline.set(this.time.end, { duration: this.time.end });
+        this.registerLogo();
+        this.timeline.set(20000, { duration: 20000});
     }
 
-    registerFlipCard() {
+    registerLogo() {
+        const logoQuadrants = [
+            this.logo.geometries.second,
+            this.logo.geometries.fourth,
+            this.logo.geometries.first,
+            this.logo.geometries.third
+        ];
+
+        let time = {
+            a: [0, 250, 500, 750],
+            end: 1750
+        };
+
+        logoQuadrants.forEach((quadrant, i) => {
+            let x, y, startTime;
+            const offset = 400;
+
+            switch(i) {
+                case 0:  // top left
+                    startTime = time.a[0];//this.time.quad.a;
+                    x = -offset;
+                    y = -offset;
+                    break;
+                case 1: // bottom right
+                    startTime = time.a[1];//this.time.quad.b;
+                    x = offset;
+                    y = offset;
+                    break;
+                case 2: // top right
+                    startTime = time.a[2];//this.time.quad.c;
+                    x = offset;
+                    y = -offset;
+                    break;
+                case 3: // bottom left
+                    startTime = time.a[3]; //this.time.quad.d;
+                    x = -offset;
+                    y = offset;
+                    break;
+            }
+
+            this.timeline.registerPath({
+                handler: (val) => {
+                    quadrant.setPosition(...val);
+                },
+                path: [
+                    [0, [x, y, 0]],
+                    [startTime, [x, y, 0], Curves.inOutBack],
+                    [startTime + 1000, [0, 0, 0]]
+                ]
+            });
+
+            this.timeline.registerPath({
+               handler: (t) => {
+                   if(t >= 200) {
+                       quadrant.setOpacity(1, {
+                           duration: 250
+                       });
+                   }
+               },
+                path: [
+                    [0, 0],
+                    [time.end, time.end]
+                ]
+            });
+
+            let rotX = Math.PI * 0 / 180;
+            let rotY = Math.PI * 360 / 180;
+            let rotZ = Math.PI * 0 / 180;
+
+            this.timeline.registerPath({
+                handler: (val) => {
+                    quadrant.setRotation(...val);
+                },
+                path: [
+                    [startTime, [rotX, rotY, rotZ]],
+                    [startTime + 1000, [0, 0, 0]]
+                ]
+            });
+        });
+
+        this.registerLoadOutsideCylinder(time.end);
+    }
+
+    registerLoadOutsideCylinder(startTime) {
+        startTime = (startTime) ? startTime : 0;
+        let time = {
+            a: [startTime],
+            end: startTime + 1000
+        };
+
+        let hasScaled = false;
         this.timeline.registerPath({
-            handler: (val) => {
-                if(val >= this.time.car.b[0]) {
-                    this.flipCards[0].setDOMProperties({
-                        'background-color': 'rgba(0, 0, 0, 0)'
+            handler: (t) => {
+                if (!hasScaled && t >= time.a[0]) {
+                    hasScaled = true;
+
+                    this.logo.geometries.outsideCyl.setScale(0, 0, 0, {duration: 0}, () => {
+                        this.logo.geometries.outsideCyl.setScale(1, 1, 1, {
+                            duration: 1000,
+                            curve: Curves.outBack
+                        });
+                        this.logo.geometries.outsideCyl.setOpacity(1, {
+                            duration: 800
+                        });
                     });
                 }
             },
             path: [
-                [0, 0],
-                [this.time.end, this.time.end]
+                [startTime, startTime],
+                [time.end, time.end]
             ]
-        })
+        });
+
+        this.registerRotateAssembleLogo(time.end);
+    };
+
+    registerRotateAssembleLogo(startTime) {
+        startTime = (startTime) ? startTime : 0;
+        let phaseDuration = 1750;
+        let endTime = startTime + phaseDuration;
+
+        this.timeline.registerPath({
+            handler: (val) => {
+                this.logo.setRotation(...val);
+            },
+            path: [
+                [startTime, [0, 0, 0], Curves.easeOut],
+                [startTime + 500, [0, Math.PI * 90 /180, 0]],
+                [startTime + 1250, [0, Math.PI * 90 /180, 0], Curves.outBack],
+                [endTime, [0, 0, 0]]
+            ]
+        });
+
+        let isScrewed = false;
+        this.timeline.registerPath({
+            handler: (time) => {
+                if(!isScrewed && time >= startTime + 500) {
+                    isScrewed = true;
+
+                    this.logo.quads.setRotationZ(Math.PI * 1440 / 180, {
+                        duration: 750
+                    });
+
+                    this.logo.quads.setPositionZ(0, {
+                        duration: 750,
+                        curve: Curves.inBack
+                    });
+                }
+            },
+            path: [
+                [startTime, startTime],
+                [endTime, endTime]
+            ]
+        });
+
+        this.registerAddOuterRingInsideCyl(endTime);
     }
 
-    registerCar() {
+    registerAddOuterRingInsideCyl(startTime) {
+        startTime = (startTime) ? startTime : 0;
+        let phaseDuration = 1500;
+        let endTime = startTime + phaseDuration;
+
+        this.logo.geometries.outerRing.setPositionZ(8500);
+        this.logo.geometries.insideCyl.setPositionZ(8500);
+        this.logo.geometries.innerRing.setPositionZ(-500);
+
+        let hasScaledDown = false;
+        let hasScaledUp = false;
+        this.timeline.registerPath({
+            handler: (time) => {
+                if(!hasScaledDown && time >= startTime) {
+                    hasScaledDown = true;
+                    this.logo.geometries.outerRing.setOpacity(1, { duration: 1000 });
+
+                    this.logo.geometries.outerRing.setPositionZ(0, {
+                        duration: 1000,
+                        curve: Curves.easeIn
+                    });
+
+                    this.logo.geometries.insideCyl.setOpacity(1, { duration: 750 });
+
+                    this.logo.geometries.insideCyl.setPositionZ(0, {
+                        duration: 750,
+                        curve: Curves.easeIn
+                    });
+                }
+
+                if(!hasScaledUp && time >= startTime + 1000) {
+                    hasScaledUp = true;
+                    this.logo.geometries.innerRing.setOpacity(1);
+                    this.logo.geometries.innerRing.setPositionZ(0, {
+                        duration: 500,
+                        curve: Curves.outBack
+                    });
+                }
+            },
+            path: [
+                [startTime, startTime],
+                [endTime, endTime]
+            ]
+        });
+
+        this.registerLetterEntry(endTime);
+    }
+
+    registerLetterEntry(startTime) {
+        startTime = (startTime) ? startTime : 0;
+        let phaseDuration = 1500;
+        let endTime = startTime + phaseDuration;
+
+        let B = this.logo.geometries.B, M = this.logo.geometries.M, W = this.logo.geometries.W;
+
+        B.setPositionZ(100);
+        M.setPositionZ(100);
+        W.setPositionZ(100);
+
+        let hasLoadedLetters = false;
+        this.timeline.registerPath({
+            handler: (time) => {
+                if(!hasLoadedLetters && time >= startTime) {
+                    hasLoadedLetters = true;
+
+                    B.setOpacity(1, { duration: 250});
+                    B.setPositionZ(0, { duration: 250});
+
+                    setTimeout(function() {
+                        M.setOpacity(1, { duration: 250});
+                        M.setPositionZ(0, { duration: 250});
+                    }, 250);
+
+                    setTimeout(function() {
+                        W.setOpacity(1, { duration: 250});
+                        W.setPositionZ(0, { duration: 250});
+                    }, 500);
+                }
+            },
+            path: [
+                [startTime, startTime],
+                [endTime, endTime]
+            ]
+        });
+
+        this.registerCar(endTime);
+        this.registerClosingText(endTime);
+        this.registerSky(endTime);
+    }
+
+    registerCar(startTime) {
+        startTime = (startTime) ? startTime : 0;
+        let time = {
+            a: [startTime, startTime + 1000],
+            b: [startTime + 2000, startTime + 3000],
+            end: startTime + 3000
+        };
+
         let lastCard = this.flipCards[0];
 
         this.timeline.registerPath({
@@ -352,21 +593,18 @@ class App extends View {
                 lastCard.car.setPosition(...val);
             },
             path: [
-                [this.time.start, [0, 0]],
-                [this.time.car.a[0], [0, 0]],
-                [this.time.car.a[1], [400, -600], Curves.outCirc],
-                [this.time.car.b[0], [400, -825]],
-                [this.time.car.b[1], [0, -375], Curves.inCirc]
+                [startTime, [0, 0]],
+                [time.a[1], [400, -600], Curves.outCirc],
+                [time.b[0], [400, -825]],
+                [time.b[1], [0, -375], Curves.inCirc]
             ]
         });
 
+        let hasUpdatedImage = false;
         this.timeline.registerPath({
-            handler: (time) => {
-                if(!this.hasOwnProperty('hasUpdatedImage')) {
-                    this.hasUpdatedImage = false;
-                }
-
-                if(time >= this.time.car.b[0]) {
+            handler: (t) => {
+                if(!hasUpdatedImage && t >= time.b[0]) {
+                    hasUpdatedImage = true;
                     lastCard.car.updateImage('orange_mirrored');
                     lastCard.car.setScale(1, 1);
                     lastCard.car.setSizeModeAbsolute();
@@ -375,12 +613,69 @@ class App extends View {
             },
             path: [
                 [0, 0],
-                [this.time.end, this.time.end]
+                [time.end, time.end]
             ]
         });
+
+        let isOpacitated = false;
+        this.timeline.registerPath({
+            handler: (t) => {
+                if(!isOpacitated && t >= startTime) {
+                    isOpacitated = true;
+                    this.flipCards.forEach(function(card) {
+                        card.setDOMProperties({
+                            'background-color': 'rgba(0, 0, 0, 0)'
+                        })
+                    });
+
+                    this.registerLogoDrop(t);
+                }
+            },
+            path: [
+                [startTime, startTime],
+                [time.end, time.end]
+            ]
+        })
     }
 
-    registerSky() {
+    registerLogoDrop(startTime) {
+        startTime = (startTime) ? startTime : 0;
+        let time = {
+            a: [startTime + 1500, startTime + 3000],
+            end: startTime + 300
+        };
+
+        this.timeline.registerPath({
+            handler: (val) => {
+                this.logo.setPosition(...val);
+            },
+            path: [
+                [startTime,  [0, 100, 500], Curves.easeIn],
+                [time.a[0], [0, 250, 500], Curves.easeOut],
+                [time.a[1], [0, 365, 500]]
+            ]
+        });
+
+        this.timeline.registerPath({
+            handler: (val) => {
+                this.logo.setScale(...val)
+            },
+            path: [
+                [startTime,  [1, 1, 1], Curves.easeOut],
+                [time.a[0], [.7, .7, .7], Curves.easeIn],
+                [time.a[1], [.9, .9, .9]]
+            ]
+        })
+    }
+
+    registerSky(startTime) {
+        startTime = (startTime) ? startTime : 0;
+        let time = {
+            a: [startTime, startTime + 1000],
+            b: [startTime + 2000, startTime + 3000],
+            end: startTime + 3000
+        };
+
         this.timeline.registerPath({
             handler: (val) => {
                 this.sky.setDOMProperties({
@@ -388,28 +683,35 @@ class App extends View {
                 })
             },
             path: [
-                [this.time.car.b[0] + 0,    [255, 255, 255]],
-                [this.time.car.b[0] + 50,  [255, 248, 224]],
-                [this.time.car.b[0] + 100,  [255, 213, 78]],
-                [this.time.car.b[0] + 150,  [255, 154, 0]],
-                [this.time.car.b[0] + 200,  [229, 95,  21]],
-                [this.time.car.b[0] + 250,  [205, 41,  103]],
-                [this.time.car.b[1], [0, 0, 0]]
+                [time.b[0] + 0,    [255, 255, 255]],
+                [time.b[0] + 50,   [255, 248, 224]],
+                [time.b[0] + 100,  [255, 213, 78]],
+                [time.b[0] + 150,  [255, 154, 0]],
+                [time.b[0] + 200,  [229, 95,  21]],
+                [time.b[0] + 250,  [205, 41,  103]],
+                [time.b[1],        [0, 0, 0]]
             ]
         })
     }
 
-    registerClosingText() {
+    registerClosingText(startTime) {
+        //7500
+        startTime = (startTime) ? startTime : 0;
+        let time = {
+            a: [startTime + 500, startTime + 1500, startTime + 3000],
+            b: [startTime + 2700, startTime + 3500]
+        };
+
         //Closing text 1
         this.timeline.registerPath({
             handler: (val) => {
                 this.closingText1.setOpacity(val);
             },
             path: [
-                [this.time.start, 0],
-                [this.time.closingText.a[0], 0],
-                [this.time.closingText.a[1], 1],
-                [this.time.closingText.a[2], 0]
+                [startTime, 0],
+                [time.a[0], 0],
+                [time.a[1], 1],
+                [time.a[2], 0]
             ]
         });
 
@@ -418,9 +720,9 @@ class App extends View {
             handler: (val) => {
                 this.closingText1.setPosition(...val)
             },
-            path: [[this.time.start, [0, ypos]],
-                [this.time.closingText.a[1], [0, ypos]],
-                [this.time.closingText.a[2], [0, ypos + 100]]]
+            path: [[startTime, [0, ypos]],
+                [time.a[1], [0, ypos], Curves.easeOut],
+                [time.a[2], [0, ypos + 100]]]
         });
 
         //Closing text 2
@@ -429,16 +731,15 @@ class App extends View {
                 this.closingText2.setOpacity(val);
             },
             path: [
-                [this.time.start, 0],
-                [this.time.closingText.b[0], 0],
-                [this.time.closingText.b[1], 1]
+                [startTime, 0],
+                [time.b[0], 0],
+                [time.b[1], 1]
             ]
         });
     }
 }
 
-const rootNode = FamousPlatform.core.Famous.createContext('body');
-let camera = new FamousPlatform.components.Camera(rootNode);
-camera.setDepth(20000);
+FamousEngine.init();
+FamousEngine.createScene('#app');
 
-window.app = new App(rootNode.addChild(), {});
+window.app = new App(FamousEngine.addChild('#app'));
