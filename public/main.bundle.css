@@ -17,7 +17,7 @@ div {
   box-sizing: border-box;
 }
 #app {
-  width: 384px;
+  width: 420px;
   height: 768px;
   overflow: hidden;
   border: 1px solid black;

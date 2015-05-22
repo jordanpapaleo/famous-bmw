@@ -49,6 +49,25 @@ class App extends View {
         this.renderSky();
         this.renderLogo();
 
+        /*this.headlights = new View(this.addChild());
+        this.headlights.setAlign(0.5, 0, 0).setMountPoint(0.5, 0, 0);
+        this.headlights.setSizeMode(0, 1);
+        this.headlights.setProportionalSize(1, null);
+        this.headlights.setAbsoluteSize(null, 280);
+        this.headlights.createDOMElement({
+            tagName: 'img',
+            classes: ['headlights'],
+            attributes: {
+                'src': `assets/images/car/headlights.png`
+            },
+            properties: {
+                'z-index': 600
+            }
+        });
+
+        this.headlights.setPositionY(45);
+        this.headlights.setPositionZ(600);*/
+
          this.initFlipBook();
     }
 
@@ -560,12 +579,6 @@ class App extends View {
     }
 
     registerCar(startTime) {
-        this.headlights = new View(this.addChild());
-        this.headlights.setAlign(0.5, 0, 0).setMountPoint(0.5, 0, 0);
-        this.headlights.setSizeMode(0, 1);
-        this.headlights.setProportionalSize(1, null);
-        this.headlights.setAbsoluteSize(null, 280);
-
         startTime = (startTime) ? startTime : 0;
         let time = {
             a: [startTime, startTime + 1000],
