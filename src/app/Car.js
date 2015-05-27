@@ -39,7 +39,7 @@ export class Car extends View {
 
     updateImage(img) {
         this.setDOMAttributes({
-            'src': `assets/images/car/${img}.png`
+            'src': `assets/images/car/${img}`
         });
     }
 }

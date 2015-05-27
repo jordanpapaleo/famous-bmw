@@ -328,6 +328,7 @@ class App extends View {
         this.timeline = new Timeline({ timescale: 1 });
         this.registerLogo();
         this.timeline.set(20000, { duration: 20000});
+        //this.timeline.set(20000, { duration: 5000});
     }
 
     registerLogo() {
@@ -605,7 +606,7 @@ class App extends View {
             handler: (t) => {
                 if(!hasUpdatedImage && t >= time.b[0]) {
                     hasUpdatedImage = true;
-                    lastCard.car.updateImage('orange_mirrored');
+                    lastCard.car.updateImage('orange_mirrored_alt.png');
                     lastCard.car.setScale(1, 1);
                     lastCard.car.setSizeModeAbsolute();
                     lastCard.car.setAbsoluteSize(550, 367);
