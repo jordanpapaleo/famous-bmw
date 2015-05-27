@@ -22,7 +22,7 @@ class App extends View {
         super(node);
 
         let camera = new FamousPlatform.components.Camera(this.node);
-        camera.setDepth(8000);
+        camera.setDepth(1000);
 
         this.setAlign(.5, .5).setMountPoint(.5, .5);
         this.setSizeModeAbsolute().setAbsoluteSize(420, 768);
@@ -328,6 +328,7 @@ class App extends View {
         this.timeline = new Timeline({ timescale: 1 });
         this.registerLogo();
         this.timeline.set(20000, { duration: 20000});
+        //this.timeline.set(20000, { duration: 5000});
     }
 
     registerLogo() {
@@ -453,13 +454,13 @@ class App extends View {
 
         this.timeline.registerPath({
             handler: (val) => {
-                this.logo.setRotation(...val);
+                this.logo.setRotationY(val);
             },
             path: [
-                [startTime, [0, 0, 0], Curves.easeOut],
-                [startTime + 500, [0, Math.PI * 90 /180, 0]],
-                [startTime + 1250, [0, Math.PI * 90 /180, 0], Curves.outBack],
-                [endTime, [0, 0, 0]]
+                [startTime, 0, Curves.easeOut],
+                [startTime + 500, Math.PI * 90 /180],
+                [startTime + 1250, Math.PI * 90 /180, Curves.outBack],
+                [endTime, 0]
             ]
         });
 
@@ -493,8 +494,8 @@ class App extends View {
         let phaseDuration = 1500;
         let endTime = startTime + phaseDuration;
 
-        this.logo.geometries.outerRing.setPositionZ(8500);
-        this.logo.geometries.insideCyl.setPositionZ(8500);
+        this.logo.geometries.outerRing.setPositionZ(1000);
+        this.logo.geometries.insideCyl.setPositionZ(1000);
         this.logo.geometries.innerRing.setPositionZ(-500);
 
         let hasScaledDown = false;
@@ -605,7 +606,7 @@ class App extends View {
             handler: (t) => {
                 if(!hasUpdatedImage && t >= time.b[0]) {
                     hasUpdatedImage = true;
-                    lastCard.car.updateImage('orange_mirrored');
+                    lastCard.car.updateImage('orange_mirrored_alt.png');
                     lastCard.car.setScale(1, 1);
                     lastCard.car.setSizeModeAbsolute();
                     lastCard.car.setAbsoluteSize(550, 367);
@@ -645,14 +646,20 @@ class App extends View {
             end: startTime + 300
         };
 
+        let logo = {
+            z: this.logo.getPositionZ(),
+            y: this.logo.getPositionY(),
+            x: this.logo.getPositionX()
+        };
+
         this.timeline.registerPath({
             handler: (val) => {
                 this.logo.setPosition(...val);
             },
             path: [
-                [startTime,  [0, 100, 500], Curves.easeIn],
-                [time.a[0], [0, 250, 500], Curves.easeOut],
-                [time.a[1], [0, 365, 500]]
+                [startTime,  [logo.x, logo.y, logo.z], Curves.easeIn],
+                [time.a[0],  [logo.x, 250,    logo.z], Curves.easeOut],
+                [time.a[1],  [logo.x, 365,    logo.z]]
             ]
         });
 

@@ -13,9 +13,10 @@ export class Logo extends View {
         super(node, options);
 
         this.setAlign(0.5, 0, 0.5).setMountPoint(0.5, 0, 0.5).setOrigin(0.5, 0.5, 0.5);
-        this.setSizeModeAbsolute().setAbsoluteSize(200, 200, 200);
-        this.setPositionZ(500);
-        this.setPositionY(100);
+        this.setSizeModeAbsolute().setAbsoluteSize(150, 150, 150);
+        this.setPositionZ(200);
+        this.setPositionY(125);
+        this.setRotationX(Math.PI * -10 / 180);
 
         this.parent = new View(this.addChild());
         this.quads  = new View(this.parent.addChild());
@@ -68,8 +69,8 @@ export class Logo extends View {
 
     objFactory(node, name) {
         let geo = new View(node);
-        geo.setAlign(0.5, 0.5, 0.5).setMountPoint(0.5, 0.5, 0.5).setOrigin(0.5, 0.5, 0.5);
-        geo.setSizeModeAbsolute().setAbsoluteSize(200, 200, 200);
+        geo.setAlign(0.5, 0, 0.5).setMountPoint(0.5, 0, 0.5).setOrigin(0.5, 0.5, 0.5);
+        geo.setSizeModeAbsolute().setAbsoluteSize(150, 150, 150);
         geo.setOpacity(0);
 
         OBJLoader.load('assets/obj/' + name + '.obj', (buffers) => {
